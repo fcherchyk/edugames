@@ -1,7 +1,7 @@
 # EduGames
 
-Literacy games for children aged 4 to 6 who are learning to read: recognising letters, matching
-upper and lower case, letter sounds, first letters of words and drawing letters.
+Early literacy and numeracy games for children aged 4 to 6: recognising letters, matching upper
+and lower case, first letters of words, spelling, drawing letters, and numbers and quantities.
 
 Slice 1 (MVP) ships **Letter Pairs**, a memory game where `A` is matched with `a`, and the
 platform around it: player profiles, a goal path with stars, coins, and an avatar to dress up.
@@ -84,17 +84,31 @@ Rules for contributing: [`docs/standards.md`](docs/standards.md). Asset licences
 
 ## Roadmap
 
-Ideas for the next slices, to be prioritised:
+One slice at a time, in this order. Each slice gets its acceptance criteria in
+`docs/S<n>_<name>.md` when it starts.
 
-- **More games:** Letter Sounds (hear a sound, tap the letter), First Letter (a picture such as a
-  sun or a duck, choose its first letter), Draw Letters (trace a letter following arrows), Find
-  the Letter (spot every `m` in a scene), alphabet order, and building your own name.
-- **Spanish:** `content/es/` adapted, not translated: the Spanish alphabet (including `Ñ`), its
-  own levels and words for pictures, and recorded clips, chosen per player.
-- **Avatar:** more faces and hair, and items bought with coins (crowns, hats, glasses, clothes).
-- **Adaptive practice:** repeat the letters a child confuses (`b`/`d`, `p`/`q`).
-- **Parents' area:** letters mastered per player, deleting profiles, behind an adult check.
-- **Packaging:** double-click builds for macOS, Windows and Linux; a web build with pygbag.
+| Slice | What it brings | Builds on |
+|---|---|---|
+| S1 ✅ | Profiles, goal path and Letter Pairs | — |
+| S2 ✅ | Art style and a world per level | — |
+| S3 | **Letter Rain:** capital and small letters fall and vanish when the child finds them on the keyboard | Levels per game; an on-screen keyboard showing both cases on each key; the gentle fall (see below); every answer recorded per letter |
+| S4 | **Avatar shop:** crowns, helmets, wings and more, bought with coins | Item drawings in the art style; the wardrobe becomes a shop |
+| S5 | **Letter games:** *Write Your Name* (build your own name letter by letter), *Draw Letters* (trace a letter following arrows), *Find the Letter* (spot every `m` in a scene) | The keyboard; the player's name; tracing with mouse or touch |
+| S6 | **Picture Rain:** pictures fall and vanish when their first letter is pressed (tap one of 3 letters for the youngest). **Picture album:** every word learnt becomes a sticker | A library of pictures drawn in code, each a language-neutral concept with a word and its audio per locale |
+| S7 | **Numbers:** *Numbers 1 to 10* (recognise and count, spoken numbers), *Count and Match* (numbers with quantities of things), *Biggest Number* (pick the largest of several). Levels go up to 5, then 10, 20 and 50 | Pictures to count; numbers in the content |
+| S8 | **Fill the Gaps:** a picture and its word with letters missing, typed on the keyboard (the first letter, then a vowel, then several) | The keyboard and the pictures |
+| S9 | **Word Builder:** drag the scrambled letters to spell the picture's word | Drag and drop |
+| S10 | **Alphabet Order:** put letters in order, or find what comes next | — |
+| S11 | **Parents' area**, behind an adult check: progress per letter and number, deleting profiles, speed and sound settings | Answers recorded since S3 |
+| S12 | **Spanish:** `content/es/` adapted, not translated: the Spanish alphabet (with `Ñ`), its own levels and words for the pictures, and its own audio | Everything above as content |
+
+**The gentle fall** (S3, S6): nothing is lost. A letter or picture that reaches the ground bounces
+back up, there are no lives and no game over, the speed adapts to the child, and a level ends
+after a number of right answers.
+
+**Later, not yet ordered:** adaptive practice (repeat the letters a child confuses, such as
+`b`/`d`), animations and sound effects, Letter Sounds (needs recorded phonemes), and packaging
+(double-click builds for macOS, Windows and Linux, and a web build with pygbag).
 
 ## Licence
 

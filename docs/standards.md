@@ -51,6 +51,8 @@ Drawings and scenery carry no text, so they are shared by every language.
 ## Designing for children aged 4 to 6
 
 - No timers, no "you lost" screens, no penalties: a game ends when it is completed.
+- Things that fall fall gently: whatever reaches the ground bounces back up, there are no lives,
+  the speed adapts to the child, and a level ends after a number of right answers.
 - Every tap target is at least 96 px (`style.MIN_TARGET`). Icons and pictures first, text second.
 - Feedback is spoken or visual (the letter's name, green for a match), not written.
 - No network, ads, analytics or purchases with real money. The only personal data is a first
