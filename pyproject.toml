@@ -1,0 +1,45 @@
+[project]
+name = "edugames"
+version = "0.1.0"
+description = "Literacy games for children aged 4 to 6"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "platformdirs>=4.2",
+    "pygame-ce>=2.5",
+]
+
+[project.scripts]
+edugames = "edugames.__main__:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.10,<0.11"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=edugames --cov-report=term-missing"
+# SDL's dummy video driver (tests, sandbox) has no GPU renderer for pygame.SCALED
+filterwarnings = ["ignore:no fast renderer available"]
+
+[tool.coverage.run]
+source = ["edugames"]
+
+[tool.coverage.report]
+fail_under = 80
+skip_covered = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

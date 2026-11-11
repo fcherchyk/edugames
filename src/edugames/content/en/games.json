@@ -1,0 +1,36 @@
+{
+  "games": [
+    {
+      "id": "memory",
+      "title": "Letter Pairs",
+      "icon": "Aa",
+      "min_age": 3,
+      "max_age": 7,
+      "playable": true
+    },
+    {
+      "id": "letter-sounds",
+      "title": "Letter Sounds",
+      "icon": "Bb",
+      "min_age": 4,
+      "max_age": 6,
+      "playable": false
+    },
+    {
+      "id": "first-letter",
+      "title": "First Letter",
+      "icon": "Cc",
+      "min_age": 4,
+      "max_age": 7,
+      "playable": false
+    },
+    {
+      "id": "draw-letters",
+      "title": "Draw Letters",
+      "icon": "Dd",
+      "min_age": 5,
+      "max_age": 8,
+      "playable": false
+    }
+  ]
+}

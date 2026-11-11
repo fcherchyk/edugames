@@ -1,0 +1,21 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# Sandbox scripts (dependency state, screenshots)
+.sandbox/
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+
+# Local Claude Code instructions (not versioned)
+CLAUDE.md

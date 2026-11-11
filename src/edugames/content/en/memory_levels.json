@@ -1,0 +1,57 @@
+{
+  "levels": [
+    {
+      "id": "1",
+      "pairs": 3,
+      "letters": [
+        "A",
+        "M",
+        "O"
+      ],
+      "theme": "meadow"
+    },
+    {
+      "id": "2",
+      "pairs": 4,
+      "letters": [
+        "S",
+        "T",
+        "P",
+        "E"
+      ],
+      "theme": "beach"
+    },
+    {
+      "id": "3",
+      "pairs": 6,
+      "letters": [
+        "B",
+        "D",
+        "F",
+        "H",
+        "L",
+        "R"
+      ],
+      "theme": "forest"
+    },
+    {
+      "id": "4",
+      "pairs": 6,
+      "letters": [
+        "B",
+        "D",
+        "P",
+        "Q",
+        "N",
+        "U"
+      ],
+      "theme": "snow"
+    },
+    {
+      "id": "5",
+      "pairs": 8,
+      "letters": "*",
+      "theme": "space"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "letters": [
+    {
+      "upper": "A",
+      "lower": "a",
+      "spoken": "ay",
+      "vowel": true
+    },
+    {
+      "upper": "B",
+      "lower": "b",
+      "spoken": "bee",
+      "vowel": false
+    },
+    {
+      "upper": "C",
+      "lower": "c",
+      "spoken": "see",
+      "vowel": false
+    },
+    {
+      "upper": "D",
+      "lower": "d",
+      "spoken": "dee",
+      "vowel": false
+    },
+    {
+      "upper": "E",
+      "lower": "e",
+      "spoken": "ee",
+      "vowel": true
+    },
+    {
+      "upper": "F",
+      "lower": "f",
+      "spoken": "ef",
+      "vowel": false
+    },
+    {
+      "upper": "G",
+      "lower": "g",
+      "spoken": "gee",
+      "vowel": false
+    },
+    {
+      "upper": "H",
+      "lower": "h",
+      "spoken": "aitch",
+      "vowel": false
+    },
+    {
+      "upper": "I",
+      "lower": "i",
+      "spoken": "eye",
+      "vowel": true
+    },
+    {
+      "upper": "J",
+      "lower": "j",
+      "spoken": "jay",
+      "vowel": false
+    },
+    {
+      "upper": "K",
+      "lower": "k",
+      "spoken": "kay",
+      "vowel": false
+    },
+    {
+      "upper": "L",
+      "lower": "l",
+      "spoken": "el",
+      "vowel": false
+    },
+    {
+      "upper": "M",
+      "lower": "m",
+      "spoken": "em",
+      "vowel": false
+    },
+    {
+      "upper": "N",
+      "lower": "n",
+      "spoken": "en",
+      "vowel": false
+    },
+    {
+      "upper": "O",
+      "lower": "o",
+      "spoken": "oh",
+      "vowel": true
+    },
+    {
+      "upper": "P",
+      "lower": "p",
+      "spoken": "pee",
+      "vowel": false
+    },
+    {
+      "upper": "Q",
+      "lower": "q",
+      "spoken": "cue",
+      "vowel": false
+    },
+    {
+      "upper": "R",
+      "lower": "r",
+      "spoken": "ar",
+      "vowel": false
+    },
+    {
+      "upper": "S",
+      "lower": "s",
+      "spoken": "ess",
+      "vowel": false
+    },
+    {
+      "upper": "T",
+      "lower": "t",
+      "spoken": "tee",
+      "vowel": false
+    },
+    {
+      "upper": "U",
+      "lower": "u",
+      "spoken": "you",
+      "vowel": true
+    },
+    {
+      "upper": "V",
+      "lower": "v",
+      "spoken": "vee",
+      "vowel": false
+    },
+    {
+      "upper": "W",
+      "lower": "w",
+      "spoken": "double you",
+      "vowel": false
+    },
+    {
+      "upper": "X",
+      "lower": "x",
+      "spoken": "ex",
+      "vowel": false
+    },
+    {
+      "upper": "Y",
+      "lower": "y",
+      "spoken": "why",
+      "vowel": false
+    },
+    {
+      "upper": "Z",
+      "lower": "z",
+      "spoken": "zee",
+      "vowel": false
+    }
+  ]
+}
