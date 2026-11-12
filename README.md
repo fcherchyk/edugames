@@ -5,6 +5,8 @@ and lower case, first letters of words, spelling, drawing letters, and numbers a
 
 Slice 1 (MVP) ships **Letter Pairs**, a memory game where `A` is matched with `a`, and the
 platform around it: player profiles, a goal path with stars, coins, and an avatar to dress up.
+Slice 3 adds **Letter Rain**: letters, then pictures, fall gently, and the child finds their letter
+on the keyboard.
 
 A desktop app in Python with [pygame-ce](https://pyga.me/), for macOS, Linux and Windows.
 
@@ -14,15 +16,24 @@ A desktop app in Python with [pygame-ce](https://pyga.me/), for macOS, Linux and
   (face, skin tone, hair style and hair colour). The age decides which games are offered.
 - **Letter Pairs:** turn two cards over to match a capital letter with its small letter. Every
   card says its letter's name when it is turned. No timer and no way to lose.
-- **Goal path:** 5 levels, from 3 easy pairs to 8 random letters, including the commonly confused
-  `b d p q`. Each level opens when the one before is won, and keeps its best 1 to 3 stars.
+- **Letter Rain:** letters fall from the sky and pop when the child presses them, on the real
+  keyboard or on the on-screen one (laid out like the real one, each key showing `Aa`, and hidden
+  with a tap if the child prefers the real keyboard). After five letter levels, pictures fall
+  instead: each says its word, and the child finds its first letter. Players under 5 choose among
+  three big letters on picture levels. Whatever reaches the ground bounces back up: no lives, no
+  game over, and the speed adapts to the child.
+- **Goal path:** one per game. Letter Pairs has 5 levels, from 3 easy pairs to 8 random letters,
+  including the commonly confused `b d p q`; Letter Rain has 10, in two rows. Each level opens
+  when the one before is won, and keeps its best 1 to 3 stars.
 - **Coins and wardrobe:** every win gives coins, which buy shirt colours for the avatar.
 - **Victory pop-up:** the avatar celebrates, with the stars and coins earned.
 - **Art style:** a cel-shaded chibi avatar, rolling hills and a checkered ground, a world per
-  level (meadow, beach, forest, snow, space), glossy stars and coins, and letters in Montessori
-  colours (vowels red, consonants blue).
-- **Private by design:** no network, no accounts, no ads; only a first name and an age, saved on
-  the computer.
+  level (meadow, beach, forest, snow, space), glossy stars and coins, letters in Montessori
+  colours (vowels red, consonants blue), and 22 pictures drawn in code.
+- **Answers per letter:** every answer in Letter Rain is kept per letter and per picture, with the
+  key pressed instead (`b` for `d`), for a future parents' area and practice of confused letters.
+- **Private by design:** no network, no accounts, no ads; only a first name and an age (and the
+  game's progress), saved on the computer.
 
 ## Run it
 
@@ -45,8 +56,9 @@ uv run ruff format --check .
 
 Tests run without a window or sound card (SDL's dummy drivers). CI runs them on macOS, Ubuntu
 and Windows. Each test is named after the acceptance criterion it covers (`test_S1_AC7_…`); the
-criteria are in [`docs/S1_mvp.md`](docs/S1_mvp.md) and
-[`docs/S2_art_style.md`](docs/S2_art_style.md).
+criteria are in [`docs/S1_mvp.md`](docs/S1_mvp.md),
+[`docs/S2_art_style.md`](docs/S2_art_style.md) and
+[`docs/S3_letter_rain.md`](docs/S3_letter_rain.md).
 
 ## Sandbox
 
@@ -69,12 +81,13 @@ The same demo runs anywhere with `uv run python -m edugames.demo <dir>`.
 
 ```
 src/edugames/
-  core/          game rules, scoring, profiles, storage, content loading (no pygame)
-  ui/            window, screens, widgets, avatar, scenery and art helpers, audio
-  content/en/    letters, games, levels and UI strings (English)
-  assets/        Andika and Fredoka fonts, letter-name clips
+  core/          game rules, scoring, answers, profiles, storage, content loading (no pygame)
+  ui/            window, screens, widgets, keyboard, avatar, pictures, scenery, art helpers, audio
+  content/en/    letters, games, levels per game, pictures, keyboard and UI strings (English)
+  assets/        Andika and Fredoka fonts, letter-name and picture-word clips
   demo.py        scripted headless playthrough
-scripts/         generate_letter_audio.py (Piper TTS), make_fonts.py (Fredoka SemiBold)
+scripts/         generate_letter_audio.py and generate_word_audio.py (Piper TTS),
+                 make_fonts.py (Fredoka SemiBold)
 tests/           pytest suite
 docs/            standards, acceptance criteria per slice, ADRs
 ```
@@ -91,18 +104,18 @@ One slice at a time, in this order. Each slice gets its acceptance criteria in
 |---|---|---|
 | S1 ✅ | Profiles, goal path and Letter Pairs | — |
 | S2 ✅ | Art style and a world per level | — |
-| S3 | **Letter Rain:** capital and small letters fall and vanish when the child finds them on the keyboard | Levels per game; an on-screen keyboard showing both cases on each key; the gentle fall (see below); every answer recorded per letter |
+| S3 ✅ | **Letter Rain:** capital and small letters fall and vanish when the child finds them on the keyboard; then pictures fall and vanish when their first letter is pressed (tap one of 3 letters for the youngest) | Levels per game; an on-screen keyboard showing both cases on each key, which can be hidden; the gentle fall (see below); every answer recorded per letter and picture; a library of pictures drawn in code, each a language-neutral concept with a word and its audio per locale |
 | S4 | **Avatar shop:** crowns, helmets, wings and more, bought with coins | Item drawings in the art style; the wardrobe becomes a shop |
 | S5 | **Letter games:** *Write Your Name* (build your own name letter by letter), *Draw Letters* (trace a letter following arrows), *Find the Letter* (spot every `m` in a scene) | The keyboard; the player's name; tracing with mouse or touch |
-| S6 | **Picture Rain:** pictures fall and vanish when their first letter is pressed (tap one of 3 letters for the youngest). **Picture album:** every word learnt becomes a sticker | A library of pictures drawn in code, each a language-neutral concept with a word and its audio per locale |
-| S7 | **Numbers:** *Numbers 1 to 10* (recognise and count, spoken numbers), *Count and Match* (numbers with quantities of things), *Biggest Number* (pick the largest of several). Levels go up to 5, then 10, 20 and 50 | Pictures to count; numbers in the content |
+| S6 | **Picture album:** every word found in Letter Rain becomes a sticker | The pictures and the answers per picture of S3 |
+| S7 | **Numbers:** *Numbers 1 to 10* (recognise and count, spoken numbers), *Count and Match* (numbers with quantities of things), *Biggest Number* (pick the largest of several). Levels go up to 5, then 10, 20 and 50 | The pictures of S3, to count; numbers in the content |
 | S8 | **Fill the Gaps:** a picture and its word with letters missing, typed on the keyboard (the first letter, then a vowel, then several) | The keyboard and the pictures |
 | S9 | **Word Builder:** drag the scrambled letters to spell the picture's word | Drag and drop |
 | S10 | **Alphabet Order:** put letters in order, or find what comes next | — |
 | S11 | **Parents' area**, behind an adult check: progress per letter and number, deleting profiles, speed and sound settings | Answers recorded since S3 |
 | S12 | **Spanish:** `content/es/` adapted, not translated: the Spanish alphabet (with `Ñ`), its own levels and words for the pictures, and its own audio | Everything above as content |
 
-**The gentle fall** (S3, S6): nothing is lost. A letter or picture that reaches the ground bounces
+**The gentle fall** (S3): nothing is lost. A letter or picture that reaches the ground bounces
 back up, there are no lives and no game over, the speed adapts to the child, and a level ends
 after a number of right answers.
 

@@ -1,4 +1,5 @@
-"""S1_AC1, S1_AC17 and S1_AC18: platforms, asset licences, the sandbox demo and the docs."""
+"""S1_AC1, S1_AC17, S1_AC18 and S3_AC17: platforms, asset licences, the sandbox demo and the
+docs."""
 
 import asyncio
 import re
@@ -50,10 +51,17 @@ def test_S1_AC1_the_app_opens_a_window_and_runs_its_loop(tmp_path, monkeypatch) 
     assert len(frames) == 3
 
 
-def test_S1_AC1_the_sandbox_demo_saves_a_picture_of_every_screen(tmp_path) -> None:
-    shots = run_demo(tmp_path / "screens", tmp_path / "data")
+@pytest.fixture(scope="module")
+def demo_shots(tmp_path_factory) -> list[Path]:
+    """The sandbox demo's screenshots (played once for the tests that need them)."""
+    folder = tmp_path_factory.mktemp("demo")
+    return run_demo(folder / "screens", folder / "data")
 
-    assert [p.stem.split("-", 1)[1] for p in shots] == [
+
+def test_S1_AC1_the_sandbox_demo_saves_a_picture_of_every_screen(demo_shots) -> None:
+    shots = demo_shots
+
+    assert [p.stem.split("-", 1)[1] for p in shots][:9] == [
         "players",
         "name",
         "look",
@@ -65,6 +73,17 @@ def test_S1_AC1_the_sandbox_demo_saves_a_picture_of_every_screen(tmp_path) -> No
         "wardrobe",
     ]
     assert all(pygame.image.load(p).get_size() == (1280, 800) for p in shots)
+
+
+def test_S3_AC17_the_demo_plays_letter_rain(demo_shots) -> None:
+    assert [p.stem.split("-", 1)[1] for p in demo_shots][9:] == [
+        "rain-path",
+        "rain-letters",
+        "rain-no-keyboard",
+        "rain-victory",
+        "rain-pictures",
+        "rain-choices",
+    ]
 
 
 def test_S1_AC17_every_asset_is_credited_with_an_allowed_licence() -> None:
@@ -112,7 +131,7 @@ def in_sources(slice_: int) -> dict[int, set[str]]:
 
 
 def test_S1_AC18_every_slice_has_a_doc() -> None:
-    assert sorted(DOCS) == [1, 2]
+    assert sorted(DOCS) == [1, 2, 3]
     assert DOCS[1] == DOC
 
 

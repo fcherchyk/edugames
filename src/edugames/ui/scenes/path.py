@@ -1,4 +1,5 @@
-"""The goal path: the memory game's levels in a row, each opened by winning the one before."""
+"""The goal path: a game's levels along a road, each opened by winning the one before. Up to five
+levels zig-zag in one row; more go in two rows of up to five, joined by a bend of the road."""
 
 import pygame
 
@@ -10,14 +11,54 @@ from edugames.ui.scenes.base import Scene
 from edugames.ui.widgets import Button, draw_padlock, draw_stars
 
 NODE = 130
+ROW = 5  # levels per row
 ROAD = (246, 228, 180)
+ONE_ROW = {"stars": 40, "avatar": 170}
+TWO_ROWS = {"stars": 34, "avatar": 112, "top": 322, "bottom": 640, "left": 250, "step": 190}
+BEND_X = 1200  # where the road turns from the first row to the second
 
 
-def node_center(index: int, count: int) -> tuple[int, int]:
-    """Zig-zag positions across the screen."""
-    left, right = 170, style.WIDTH - 170
-    x = left + (right - left) * index // max(1, count - 1)
-    return x, 360 if index % 2 == 0 else 560
+def node_centers(count: int) -> list[tuple[int, int]]:
+    """One row zig-zagging across the screen, or two rows: left to right, then right to left."""
+    if count <= ROW:
+        left, right = 170, style.WIDTH - 170
+        return [
+            (left + (right - left) * i // max(1, count - 1), 360 if i % 2 == 0 else 560)
+            for i in range(count)
+        ]
+    centers = []
+    for i in range(count):
+        row, col = divmod(i, ROW)
+        col = col if row == 0 else ROW - 1 - col
+        y = TWO_ROWS["top"] if row == 0 else TWO_ROWS["bottom"]
+        centers.append((TWO_ROWS["left"] + col * TWO_ROWS["step"], y))
+    return centers
+
+
+def road_points(centers: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """The road through the stones, bending outside the last column between the two rows."""
+    if len(centers) <= ROW:
+        return centers
+    top, bottom = centers[ROW - 1][1], centers[ROW][1]
+    return centers[:ROW] + [(BEND_X, top), (BEND_X, bottom)] + centers[ROW:]
+
+
+def sizes(count: int) -> dict[str, int]:
+    return ONE_ROW if count <= ROW else TWO_ROWS
+
+
+def stars_rect(center: tuple[int, int], size: int) -> pygame.Rect:
+    """Where `draw_stars` puts a level's three stars, under its stone."""
+    x, y = center
+    rect = pygame.Rect(0, 0, round(size * 1.15 * 2 + size * 1.25), round(size * 1.25) + 6)
+    rect.center = (x, y + NODE // 2 + size)
+    return rect
+
+
+def avatar_center(center: tuple[int, int], height: int) -> tuple[int, int]:
+    """The avatar stands just above the stone."""
+    x, y = center
+    return x, y - NODE // 2 - height // 2 - 10
 
 
 class PathScene(Scene):
@@ -26,8 +67,12 @@ class PathScene(Scene):
         super().__init__(app)
 
     @property
+    def levels(self):
+        return self.content.levels[self.game_id]
+
+    @property
     def level_ids(self) -> list[str]:
-        return [level.id for level in self.content.memory_levels]
+        return [level.id for level in self.levels]
 
     def unlocked(self, level_id: str) -> bool:
         return progress.is_unlocked(self.profile, self.game_id, self.level_ids, level_id)
@@ -41,10 +86,11 @@ class PathScene(Scene):
 
     def layout(self) -> None:
         self.buttons = [self.back_button(self.content.text("home"), self.to_home)]
-        for index, level in enumerate(self.content.memory_levels):
+        centers = node_centers(len(self.levels))
+        for level, center in zip(self.levels, centers, strict=True):
             level_id = level.id
             rect = pygame.Rect(0, 0, NODE, NODE)
-            rect.center = node_center(index, len(self.level_ids))
+            rect.center = center
             open_ = self.unlocked(level_id)
             self.buttons.append(
                 Button(
@@ -69,30 +115,37 @@ class PathScene(Scene):
         surface.blit(picture, picture.get_rect(center=(rect.right - 8, rect.top + 8)))
 
     def play(self, level_id: str) -> None:
-        from edugames.ui.scenes.memory import MemoryScene
+        from edugames.ui.scenes import level_scene
 
-        self.app.go(MemoryScene(self.app, self.game_id, level_id))
+        self.app.go(level_scene(self.app, self.game_id, level_id))
 
     def to_home(self) -> None:
         from edugames.ui.scenes.home import HomeScene
 
         self.app.go(HomeScene(self.app))
 
+    def avatar_rect(self) -> pygame.Rect:
+        """The space the avatar takes, on the current level."""
+        height = sizes(len(self.levels))["avatar"]
+        rect = pygame.Rect(0, 0, round(height * 0.75), height)
+        rect.center = avatar_center(node_centers(len(self.levels))[self.current_index()], height)
+        return rect
+
     def draw_scene(self, surface: pygame.Surface) -> None:
-        game = next(game for game in self.content.games if game.id == self.game_id)
-        self.draw_title(surface, game.title)
+        self.draw_title(surface, self.content.game(self.game_id).title)
         self.draw_coin_count(surface)
-        count = len(self.level_ids)
-        points = [node_center(i, count) for i in range(count)]
+        centers = node_centers(len(self.levels))
+        points = road_points(centers)
         for width, color in ((46, style.OUTLINE), (38, ROAD)):  # a sandy road with an outline
             pygame.draw.lines(surface, color, False, points, width)
             for point in points:
                 pygame.draw.circle(surface, color, point, width // 2)
-        for index, level_id in enumerate(self.level_ids):
-            x, y = points[index]
+        size = sizes(len(self.levels))["stars"]
+        for level_id, center in zip(self.level_ids, centers, strict=True):
             stars = progress.best_stars(self.profile, self.game_id, level_id)
-            draw_stars(surface, stars, (x, y + NODE // 2 + 40), 40)
+            draw_stars(surface, stars, stars_rect(center, size).center, size)
 
     def draw_overlay(self, surface: pygame.Surface) -> None:
-        x, y = node_center(self.current_index(), len(self.level_ids))
-        draw_avatar(surface, self.profile.avatar, (x, y - NODE // 2 - 95), 170)
+        height = sizes(len(self.levels))["avatar"]
+        center = node_centers(len(self.levels))[self.current_index()]
+        draw_avatar(surface, self.profile.avatar, avatar_center(center, height), height)

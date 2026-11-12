@@ -21,8 +21,10 @@ from edugames.ui import style  # noqa: E402
 from edugames.ui.app import App  # noqa: E402
 from edugames.ui.audio import Audio  # noqa: E402
 from edugames.ui.scenes.memory import TURN_BACK_MS, MemoryScene  # noqa: E402
+from edugames.ui.scenes.rain import RainScene  # noqa: E402
 
 FRAME_MS = 16
+WAIT_MS = 100  # one frame while waiting for the rain (coarser than real frames, so it runs fast)
 
 
 def click(app: App, name: str) -> None:
@@ -33,6 +35,34 @@ def click(app: App, name: str) -> None:
 
 def type_text(app: App, text: str) -> None:
     app.step([pygame.event.Event(pygame.TEXTINPUT, text=text)], FRAME_MS)
+
+
+def press_key(app: App, letter: str) -> None:
+    """Press a letter on the real keyboard (small letters, as without Caps Lock)."""
+    app.step([pygame.event.Event(pygame.KEYDOWN, key=0, unicode=letter.lower())], FRAME_MS)
+
+
+def wait_for_item(app: App, height: float = 0.0) -> None:
+    """Let the rain fall until an item is at least `height` of the way down."""
+    game = app.scene.game
+    for _ in range(2000):
+        if any(drop.y >= height for drop in game.drops):
+            return
+        app.step([], WAIT_MS)
+    raise AssertionError("nothing fell")
+
+
+def win_rain_game(app: App, misses: int = 0) -> None:
+    """Press `misses` wrong letters, then find every item until the level is won."""
+    scene = app.scene
+    assert isinstance(scene, RainScene)
+    for _ in range(misses):
+        wait_for_item(app)
+        falling = {drop.item.answer for drop in scene.game.drops}
+        press_key(app, next(letter for letter in app.content.letters if letter not in falling))
+    while scene.win is None:
+        wait_for_item(app)
+        press_key(app, scene.game.lowest().item.answer)
 
 
 def win_memory_game(app: App, mistakes: int = 1) -> None:
@@ -101,7 +131,49 @@ def run_demo(out_dir: Path, data_dir: Path, seed: int = 7) -> list[Path]:
     click(app, "wardrobe")
     click(app, "shirt:green")
     shot("wardrobe")
+    click(app, "back")
+    click(app, "game:rain")
+    shot("rain-path")
+    click(app, "level:1")
+    wait_for_item(app)
+    win_one_then_wait(app)
+    shot("rain-letters")
+    click(app, "keyboard")
+    shot("rain-no-keyboard")
+    click(app, "keyboard")
+    win_rain_game(app, misses=2)
+    shot("rain-victory")
+    play_to_picture_levels(app)
+    wait_for_item(app, 0.3)
+    shot("rain-pictures")
+    for _ in ("path", "home", "players"):
+        click(app, "back")
+    click(app, "new_player")
+    type_text(app, "Mia")
+    click(app, "next")
+    click(app, "age:4")
+    click(app, "done")
+    click(app, "game:rain")
+    click(app, "level:1")
+    win_rain_game(app)
+    play_to_picture_levels(app)
+    wait_for_item(app, 0.3)
+    shot("rain-choices")
     return shots
+
+
+def win_one_then_wait(app: App) -> None:
+    """Find one item, then wait for the rain to bring the next ones well into the sky."""
+    press_key(app, app.scene.game.lowest().item.answer)
+    wait_for_item(app, 0.35)
+
+
+def play_to_picture_levels(app: App) -> None:
+    """From a won Letter Rain level, win each next letter level up to the first picture level."""
+    while not app.scene.level.has_pictures:
+        click(app, "next_level")
+        if not app.scene.level.has_pictures:
+            win_rain_game(app)
 
 
 def main(argv: list[str] | None = None) -> None:  # pragma: no cover - command-line entry point

@@ -112,11 +112,11 @@ def test_S1_AC5_home_shows_the_games_for_the_age_and_locks_coming_soon(app) -> N
 
     assert [b.name for b in games] == [
         "game:memory",
+        "game:rain",
         "game:letter-sounds",
-        "game:first-letter",
         "game:draw-letters",
     ]
-    assert [b.enabled for b in games] == [True, False, False, False]
+    assert [b.enabled for b in games] == [True, True, False, False]
     click(app, "game:letter-sounds")
     assert isinstance(app.scene, HomeScene)
     click(app, "game:memory")

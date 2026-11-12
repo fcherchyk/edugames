@@ -1,0 +1,162 @@
+{
+  "levels": [
+    {
+      "id": "1",
+      "letters": [
+        "A",
+        "M",
+        "O",
+        "S",
+        "T"
+      ],
+      "case": "upper",
+      "goal": 8,
+      "at_once": 1,
+      "fall_seconds": 9,
+      "theme": "meadow"
+    },
+    {
+      "id": "2",
+      "letters": [
+        "A",
+        "E",
+        "I",
+        "O",
+        "U",
+        "M",
+        "S",
+        "T",
+        "P",
+        "N"
+      ],
+      "case": "upper",
+      "goal": 10,
+      "at_once": 1,
+      "fall_seconds": 8,
+      "theme": "beach"
+    },
+    {
+      "id": "3",
+      "letters": [
+        "A",
+        "E",
+        "I",
+        "O",
+        "U",
+        "M",
+        "S",
+        "T",
+        "P",
+        "N"
+      ],
+      "case": "lower",
+      "goal": 10,
+      "at_once": 1,
+      "fall_seconds": 8,
+      "theme": "forest"
+    },
+    {
+      "id": "4",
+      "letters": [
+        "B",
+        "D",
+        "P",
+        "Q",
+        "N",
+        "U",
+        "A",
+        "E",
+        "I",
+        "O"
+      ],
+      "case": "both",
+      "goal": 12,
+      "at_once": 2,
+      "fall_seconds": 8,
+      "theme": "snow"
+    },
+    {
+      "id": "5",
+      "letters": "*",
+      "case": "both",
+      "goal": 12,
+      "at_once": 2,
+      "fall_seconds": 7,
+      "theme": "space"
+    },
+    {
+      "id": "6",
+      "pictures": [
+        "apple",
+        "ball",
+        "moon",
+        "sun",
+        "fish",
+        "egg"
+      ],
+      "goal": 8,
+      "at_once": 1,
+      "fall_seconds": 11,
+      "theme": "meadow"
+    },
+    {
+      "id": "7",
+      "pictures": [
+        "cat",
+        "dog",
+        "hat",
+        "pig",
+        "tree",
+        "leaf",
+        "key",
+        "sun"
+      ],
+      "goal": 10,
+      "at_once": 1,
+      "fall_seconds": 10,
+      "theme": "beach"
+    },
+    {
+      "id": "8",
+      "pictures": [
+        "umbrella",
+        "igloo",
+        "octopus",
+        "apple",
+        "egg",
+        "jam",
+        "rainbow",
+        "volcano"
+      ],
+      "goal": 10,
+      "at_once": 1,
+      "fall_seconds": 10,
+      "theme": "forest"
+    },
+    {
+      "id": "9",
+      "pictures": [
+        "ball",
+        "dog",
+        "pig",
+        "grapes",
+        "watermelon",
+        "yoyo",
+        "key",
+        "cat"
+      ],
+      "goal": 12,
+      "at_once": 2,
+      "fall_seconds": 10,
+      "theme": "snow"
+    },
+    {
+      "id": "10",
+      "pictures": "*",
+      "goal": 12,
+      "at_once": 2,
+      "fall_seconds": 9,
+      "theme": "space"
+    }
+  ]
+}

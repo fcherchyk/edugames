@@ -23,10 +23,13 @@ working on the repo (a person or an agent) reads this file first.
 2. **Logic separate from the screen.** `edugames.core` is plain Python and never imports pygame:
    rules, scoring, progress, profiles, storage, content. `edugames.ui` only draws and turns events
    into calls to the core. A rule that can be tested without a window lives in the core.
-3. **Content separate from code.** Letters, levels, games and UI strings live in
-   `src/edugames/content/<locale>/*.json`, and recorded audio in
+3. **Content separate from code.** Letters, games, levels, pictures, the keyboard layout and UI
+   strings live in `src/edugames/content/<locale>/*.json`, and recorded audio in
    `src/edugames/assets/audio/<locale>/`. Adding a language means adding those folders, not code.
-   UI text always goes through `Content.text(key)`.
+   UI text always goes through `Content.text(key)`. Each playable game has its levels in
+   `<game id>_levels.json`, a parser in `core/content.py`, and a screen in `ui/scenes/` registered
+   in `level_scene` (`ui/scenes/__init__.py`). Every game's screen extends `LevelScene`
+   (`ui/scenes/level.py`: the victory pop-up, the next level, the way back to the path).
 4. **Async main loop.** The loop awaits `asyncio.sleep(0)` every frame, so a web build with pygbag
    stays possible without rewriting the game.
 5. **Writes are atomic.** Save to a temporary file and `os.replace` it. A damaged file is set aside
@@ -41,9 +44,12 @@ locale chooses its own:
   "zeta" in Spanish. Which letters are vowels is content too (`"vowel"` in `letters.json`).
 - **Levels:** letter sets follow that language's most frequent letters and its common confusions
   (`b d p q` in English; `b/v`, `c/s/z`, `ll/y` in Spanish).
-- **Words for pictures:** a picture is a language-neutral concept (`cow`); each locale maps it to
-  its word and first letter (cow → C, vaca → V). A picture appears only in the locales that define
-  it, which leaves out cases that don't work in a language (a silent `h`).
+- **Words for pictures:** a picture is a language-neutral concept (`cow`), drawn in code in
+  `ui/pictures.py`; each locale maps it to its word and first letter in `pictures.json` (cow → C,
+  vaca → V), with a clip in `audio/<locale>/words/`. A picture appears only in the locales that
+  define it, which leaves out cases that don't work in a language (a silent `h`).
+- **Keyboard:** the on-screen keyboard has the rows of that language's real keyboard
+  (`keyboard.json`: QWERTY in English, with `Ñ` in Spanish).
 - **Audio:** recorded or generated per locale.
 
 Drawings and scenery carry no text, so they are shared by every language.
@@ -56,7 +62,7 @@ Drawings and scenery carry no text, so they are shared by every language.
 - Every tap target is at least 96 px (`style.MIN_TARGET`). Icons and pictures first, text second.
 - Feedback is spoken or visual (the letter's name, green for a match), not written.
 - No network, ads, analytics or purchases with real money. The only personal data is a first
-  name and an age, kept on the device.
+  name and an age, kept on the device, with the player's progress, answers and settings.
 - Rewards: stars mark progress (1 to 3 per level; a win never gives 0), coins buy cosmetic items.
 
 ## Assets

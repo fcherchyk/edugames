@@ -1,4 +1,7 @@
-"""Letter names, read aloud. With no sound device the game stays silent and keeps working."""
+"""Letter names and picture words, read aloud. With no sound device, or a missing clip, the game
+stays silent and keeps working."""
+
+from pathlib import Path
 
 import pygame
 
@@ -16,14 +19,44 @@ class Audio:
         except pygame.error:
             self.enabled = False
 
+    def _sound(self, key: str, path: Path) -> pygame.mixer.Sound | None:
+        if not self.enabled:
+            return None
+        try:
+            if key not in self.sounds:
+                self.sounds[key] = pygame.mixer.Sound(path)
+        except (pygame.error, FileNotFoundError):
+            return None
+        return self.sounds[key]
+
+    def _letter(self, upper: str) -> pygame.mixer.Sound | None:
+        return self._sound(upper, self.content.letter_audio(upper))
+
+    def _word(self, picture_id: str) -> pygame.mixer.Sound | None:
+        return self._sound(f"word:{picture_id}", self.content.word_audio(picture_id))
+
     def say_letter(self, upper: str) -> bool:
         """Play the letter's name; False if nothing could be played."""
-        if not self.enabled:
+        sound = self._letter(upper)
+        if sound is None:
             return False
-        try:
-            if upper not in self.sounds:
-                self.sounds[upper] = pygame.mixer.Sound(self.content.letter_audio(upper))
-            self.sounds[upper].play()
-        except (pygame.error, FileNotFoundError):
+        sound.play()
+        return True
+
+    def say_word(self, picture_id: str) -> bool:
+        """Play the picture's word; False if nothing could be played."""
+        sound = self._word(picture_id)
+        if sound is None:
             return False
+        sound.play()
+        return True
+
+    def say_letter_and_word(self, upper: str, picture_id: str) -> bool:
+        """The letter's name, then the picture's word ("see… cat")."""
+        letter, word = self._letter(upper), self._word(picture_id)
+        if letter is None:
+            return self.say_word(picture_id)
+        channel = letter.play()
+        if word is not None and channel is not None:
+            channel.queue(word)
         return True

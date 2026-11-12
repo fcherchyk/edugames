@@ -1,19 +1,21 @@
-"""Stars (progress along the goal path) and coins (spent in the wardrobe)."""
+"""Stars (progress along the goal path), coins (spent in the wardrobe) and the answers given for
+each letter and picture."""
 
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from edugames.core.profiles import Profile
+from edugames.core.profiles import Profile, Record
 
 MAX_STARS = 3
 BASE_COINS = 2
 
 
-def stars_for(pairs: int, mismatches: int) -> int:
-    """3 stars with at most one mismatch per pair, 2 with at most two, else 1 (never 0)."""
-    if mismatches <= pairs:
+def stars_for(chances: int, mistakes: int) -> int:
+    """3 stars with at most one mistake per chance (a pair of cards, a right answer), 2 with at
+    most two, else 1 (never 0)."""
+    if mistakes <= chances:
         return 3
-    if mismatches <= 2 * pairs:
+    if mistakes <= 2 * chances:
         return 2
     return 1
 
@@ -49,3 +51,17 @@ def record_win(profile: Profile, game_id: str, level_id: str, stars: int) -> Win
     coins = coins_for(stars)
     profile.coins += coins
     return Win(stars=stars, coins=coins, new_best=stars > previous)
+
+
+def record_answer(profile: Profile, letter: str, pressed: str, picture: str | None = None) -> bool:
+    """Count an answer about `letter` (and `picture`, on picture levels): right when `pressed` is
+    that letter, else counted as `pressed` instead. True if it was right."""
+    right = pressed == letter
+    keys = [("letters", letter)] + ([("pictures", picture)] if picture else [])
+    for kind, key in keys:
+        record = profile.answers.setdefault(kind, {}).setdefault(key, Record())
+        if right:
+            record.right += 1
+        else:
+            record.wrong[pressed] = record.wrong.get(pressed, 0) + 1
+    return right

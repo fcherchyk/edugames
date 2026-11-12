@@ -9,19 +9,19 @@
       "playable": true
     },
     {
+      "id": "rain",
+      "title": "Letter Rain",
+      "icon": "Rr",
+      "min_age": 4,
+      "max_age": 7,
+      "playable": true
+    },
+    {
       "id": "letter-sounds",
       "title": "Letter Sounds",
       "icon": "Bb",
       "min_age": 4,
       "max_age": 6,
-      "playable": false
-    },
-    {
-      "id": "first-letter",
-      "title": "First Letter",
-      "icon": "Cc",
-      "min_age": 4,
-      "max_age": 7,
       "playable": false
     },
     {

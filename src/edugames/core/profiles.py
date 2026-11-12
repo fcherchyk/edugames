@@ -1,4 +1,5 @@
-"""Player profiles: name, age, avatar, coins, wardrobe and progress, saved on this computer."""
+"""Player profiles: name, age, avatar, coins, wardrobe, progress, answers and settings, saved on
+this computer."""
 
 import uuid
 from dataclasses import asdict, dataclass, field
@@ -12,6 +13,8 @@ NAME_MAX_LENGTH = 12
 MIN_AGE, MAX_AGE = 3, 8
 MAX_PROFILES = 6
 PROFILES_FILE = "profiles.json"
+ANSWER_KINDS = ("letters", "pictures")
+DEFAULT_SETTINGS = {"keyboard": True}  # the on-screen keyboard is shown
 
 
 class ProfileError(ValueError):
@@ -35,6 +38,50 @@ def check_age(age: int) -> int:
 
 
 @dataclass
+class Record:
+    """The answers about one letter or picture: how often it was found, and which letter was
+    pressed instead of it, how many times."""
+
+    right: int = 0
+    wrong: dict[str, int] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "Record":
+        right = int(data["right"])
+        wrong = {str(letter): int(count) for letter, count in data.get("wrong", {}).items()}
+        if right < 0 or any(count < 1 for count in wrong.values()):
+            raise ValueError("Answer counts cannot be negative, nor a wrong count zero")
+        return cls(right, wrong)
+
+
+def load_answers(data: Any) -> dict[str, dict[str, Record]]:
+    """Saved answers; a damaged entry is dropped, the others are kept."""
+    answers: dict[str, dict[str, Record]] = {}
+    if not isinstance(data, dict):
+        return answers
+    for kind, records in data.items():
+        if kind not in ANSWER_KINDS or not isinstance(records, dict):
+            continue
+        for key, record in records.items():
+            try:
+                answers.setdefault(kind, {})[str(key)] = Record.from_dict(record)
+            except (AttributeError, KeyError, TypeError, ValueError):
+                continue
+    return answers
+
+
+def load_settings(data: Any) -> dict[str, bool]:
+    """Saved settings; only known names with a value of the right type are kept."""
+    if not isinstance(data, dict):
+        return {}
+    return {
+        name: value
+        for name, value in data.items()
+        if name in DEFAULT_SETTINGS and isinstance(value, type(DEFAULT_SETTINGS[name]))
+    }
+
+
+@dataclass
 class Profile:
     name: str
     age: int
@@ -43,6 +90,9 @@ class Profile:
     owned_shirts: list[str] = field(default_factory=list)
     # game id -> level id -> best stars (1 to 3); a level is here once it was won
     progress: dict[str, dict[str, int]] = field(default_factory=dict)
+    # "letters" or "pictures" -> letter or picture id -> its answers
+    answers: dict[str, dict[str, Record]] = field(default_factory=dict)
+    settings: dict[str, bool] = field(default_factory=dict)
     id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
     def owns_shirt(self, color: str) -> bool:
@@ -65,6 +115,9 @@ class Profile:
             raise AvatarError(f"Not owned: {color}")
         self.avatar.shirt = color
 
+    def setting(self, name: str) -> bool:
+        return self.settings.get(name, DEFAULT_SETTINGS[name])
+
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
@@ -81,6 +134,8 @@ class Profile:
                 game: {level: int(stars) for level, stars in levels.items()}
                 for game, levels in data.get("progress", {}).items()
             },
+            answers=load_answers(data.get("answers")),
+            settings=load_settings(data.get("settings")),
         )
 
 

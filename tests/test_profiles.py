@@ -1,10 +1,11 @@
-"""S1_AC2 to S1_AC4: creating, choosing and saving player profiles."""
+"""S1_AC2 to S1_AC4, S3_AC7 and S3_AC15: creating, choosing and saving player profiles, with
+their settings and answers."""
 
 import json
 
 import pytest
 
-from edugames.core import storage
+from edugames.core import progress, storage
 from edugames.core.avatar import Avatar, AvatarError
 from edugames.core.profiles import (
     MAX_PROFILES,
@@ -125,3 +126,47 @@ def test_S1_AC4_a_damaged_profile_is_skipped_and_the_others_load(tmp_path) -> No
     storage.save_json(tmp_path / "profiles.json", {"profiles": [{"name": "x"}, good]})
 
     assert [p.name for p in ProfileStore(tmp_path).profiles] == ["Sam"]
+
+
+def test_S3_AC7_settings_survive_a_restart_and_bad_ones_are_dropped(tmp_path) -> None:
+    store = ProfileStore(tmp_path)
+    sam = store.add(new_profile("Sam", 5))
+    assert sam.setting("keyboard") is True  # shown unless the player hid it
+
+    sam.settings["keyboard"] = False
+    store.save()
+    assert ProfileStore(tmp_path).get(sam.id).setting("keyboard") is False
+
+    data = json.loads(store.path.read_text())
+    data["profiles"][0]["settings"] = {"keyboard": "no", "volume": 11}
+    store.path.write_text(json.dumps(data))
+    loaded = ProfileStore(tmp_path).get(sam.id)
+    assert loaded.settings == {} and loaded.setting("keyboard") is True
+
+
+def test_S3_AC15_old_profiles_load_and_damaged_answers_are_dropped(tmp_path) -> None:
+    store = ProfileStore(tmp_path)
+    sam = store.add(new_profile("Sam", 5))
+    progress.record_answer(sam, "B", "D", picture="ball")
+    store.save()
+    assert ProfileStore(tmp_path).get(sam.id).answers == sam.answers
+
+    data = json.loads(store.path.read_text())
+    old = {
+        key: value
+        for key, value in data["profiles"][0].items()
+        if key not in ("answers", "settings")
+    }
+    damaged = {
+        "letters": {"A": {"right": 2}, "B": {"right": -1}, "C": "lots", "D": {"wrong": {"B": 1}}},
+        "pictures": [1, 2],
+        "numbers": {"1": {"right": 1}},
+    }
+    data["profiles"] = [old, {**old, "id": "two", "name": "Ana", "answers": damaged}]
+    store.path.write_text(json.dumps(data))
+    loaded = ProfileStore(tmp_path)
+
+    assert [p.name for p in loaded.profiles] == ["Sam", "Ana"]
+    assert loaded.get(sam.id).answers == {} and loaded.get(sam.id).settings == {}
+    assert list(loaded.get("two").answers) == ["letters"]
+    assert list(loaded.get("two").answers["letters"]) == ["A"]  # the damaged ones are dropped

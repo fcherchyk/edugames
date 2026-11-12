@@ -1,0 +1,114 @@
+{
+  "pictures": [
+    {
+      "id": "apple",
+      "word": "apple",
+      "letter": "A"
+    },
+    {
+      "id": "ball",
+      "word": "ball",
+      "letter": "B"
+    },
+    {
+      "id": "cat",
+      "word": "cat",
+      "letter": "C"
+    },
+    {
+      "id": "dog",
+      "word": "dog",
+      "letter": "D"
+    },
+    {
+      "id": "egg",
+      "word": "egg",
+      "letter": "E"
+    },
+    {
+      "id": "fish",
+      "word": "fish",
+      "letter": "F"
+    },
+    {
+      "id": "grapes",
+      "word": "grapes",
+      "letter": "G"
+    },
+    {
+      "id": "hat",
+      "word": "hat",
+      "letter": "H"
+    },
+    {
+      "id": "igloo",
+      "word": "igloo",
+      "letter": "I"
+    },
+    {
+      "id": "jam",
+      "word": "jam",
+      "letter": "J"
+    },
+    {
+      "id": "key",
+      "word": "key",
+      "letter": "K"
+    },
+    {
+      "id": "leaf",
+      "word": "leaf",
+      "letter": "L"
+    },
+    {
+      "id": "moon",
+      "word": "moon",
+      "letter": "M"
+    },
+    {
+      "id": "octopus",
+      "word": "octopus",
+      "letter": "O"
+    },
+    {
+      "id": "pig",
+      "word": "pig",
+      "letter": "P"
+    },
+    {
+      "id": "rainbow",
+      "word": "rainbow",
+      "letter": "R"
+    },
+    {
+      "id": "sun",
+      "word": "sun",
+      "letter": "S"
+    },
+    {
+      "id": "tree",
+      "word": "tree",
+      "letter": "T"
+    },
+    {
+      "id": "umbrella",
+      "word": "umbrella",
+      "letter": "U"
+    },
+    {
+      "id": "volcano",
+      "word": "volcano",
+      "letter": "V"
+    },
+    {
+      "id": "watermelon",
+      "word": "watermelon",
+      "letter": "W"
+    },
+    {
+      "id": "yoyo",
+      "word": "yo-yo",
+      "letter": "Y"
+    }
+  ]
+}

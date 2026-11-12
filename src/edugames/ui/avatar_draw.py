@@ -60,64 +60,12 @@ def sprite_for(
     left, top, right, bottom = frame
     u = height * K / (bottom - top)
     big = pygame.Surface((round((right - left) * u), round((bottom - top) * u)), pygame.SRCALPHA)
-    _Figure(big, u, (-left * u, -top * u)).draw(Avatar(*key), celebrating)
+    _Figure(big, u, (-left * u, -top * u), OUTLINE_W).draw(Avatar(*key), celebrating)
     return paint.finish(big)
 
 
-class _Figure:
-    """Draws in figure units onto a supersampled surface."""
-
-    def __init__(self, surface: pygame.Surface, u: float, origin: tuple[float, float]) -> None:
-        self.s = surface
-        self.u = u
-        self.ox, self.oy = origin
-        self.lw = max(2, round(OUTLINE_W * u))
-
-    def p(self, x: float, y: float) -> tuple[int, int]:
-        return round(self.ox + x * self.u), round(self.oy + y * self.u)
-
-    def rect(self, x: float, y: float, w: float, h: float) -> pygame.Rect:
-        return pygame.Rect(*self.p(x, y), round(w * self.u), round(h * self.u))
-
-    def circle(self, color, center, r: float, outline: bool = True) -> None:
-        if outline:
-            pygame.draw.circle(self.s, NAVY, self.p(*center), r * self.u + self.lw)
-        pygame.draw.circle(self.s, color, self.p(*center), r * self.u)
-
-    def ellipse(self, color, box, outline: bool = True) -> None:
-        r = self.rect(*box)
-        if outline:
-            pygame.draw.ellipse(self.s, NAVY, r.inflate(self.lw * 2, self.lw * 2))
-        pygame.draw.ellipse(self.s, color, r)
-
-    def rrect(self, color, box, radius: float, outline: bool = True) -> None:
-        r = self.rect(*box)
-        rad = round(radius * self.u)
-        if outline:
-            pygame.draw.rect(
-                self.s, NAVY, r.inflate(self.lw * 2, self.lw * 2), border_radius=rad + self.lw
-            )
-        pygame.draw.rect(self.s, color, r, border_radius=rad)
-
-    def polygon(self, color, points, outline: bool = True) -> None:
-        pts = [self.p(*q) for q in points]
-        pygame.draw.polygon(self.s, color, pts)
-        if outline:
-            pygame.draw.polygon(self.s, NAVY, pts, self.lw)
-
-    def limb(self, color, a, b, width: float) -> None:
-        pygame.draw.line(
-            self.s, NAVY, self.p(*a), self.p(*b), round((width + 2 * OUTLINE_W) * self.u)
-        )
-        pygame.draw.circle(self.s, NAVY, self.p(*a), (width / 2 + OUTLINE_W) * self.u)
-        pygame.draw.line(self.s, color, self.p(*a), self.p(*b), round(width * self.u))
-
-    def blobs(self, color, circles) -> None:
-        """Overlapping circles with a single outline around the whole group (curls, fringes)."""
-        for x, y, r in circles:
-            pygame.draw.circle(self.s, NAVY, self.p(x, y), r * self.u + self.lw)
-        for x, y, r in circles:
-            pygame.draw.circle(self.s, color, self.p(x, y), r * self.u)
+class _Figure(paint.Pen):
+    """Draws the avatar in figure units onto a supersampled surface."""
 
     def draw(self, avatar: Avatar, celebrating: bool) -> None:
         skin = SKIN_TONES[avatar.skin]
