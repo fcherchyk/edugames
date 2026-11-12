@@ -22,19 +22,19 @@ SCREEN = pygame.Rect((0, 0), style.SIZE)
 
 
 class Recorder(Audio):
-    """Keeps what was said, and still plays it."""
+    """Keeps what the game asked to say, and still says it."""
 
     def __init__(self, content) -> None:
         super().__init__(content)
         self.said: list[tuple[str, ...]] = []
 
-    def say_letter(self, upper: str) -> bool:
+    def say_letter(self, upper: str, **options) -> bool:
         self.said.append(("letter", upper))
-        return super().say_letter(upper)
+        return super().say_letter(upper, **options)
 
-    def say_word(self, picture_id: str) -> bool:
+    def say_word(self, picture_id: str, **options) -> bool:
         self.said.append(("word", picture_id))
-        return super().say_word(picture_id)
+        return super().say_word(picture_id, **options)
 
     def say_letter_and_word(self, upper: str, picture_id: str) -> bool:
         self.said.append(("letter+word", upper, picture_id))

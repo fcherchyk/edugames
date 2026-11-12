@@ -61,6 +61,8 @@ Drawings and scenery carry no text, so they are shared by every language.
   the speed adapts to the child, and a level ends after a number of right answers.
 - Every tap target is at least 96 px (`style.MIN_TARGET`). Icons and pictures first, text second.
 - Feedback is spoken or visual (the letter's name, green for a match), not written.
+- The game speaks with one voice (`ui/audio.py`): clips wait their turn and never overlap, and a
+  hint that would come too late is dropped.
 - No network, ads, analytics or purchases with real money. The only personal data is a first
   name and an age, kept on the device, with the player's progress, answers and settings.
 - Rewards: stars mark progress (1 to 3 per level; a win never gives 0), coins buy cosmetic items.

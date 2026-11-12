@@ -197,6 +197,7 @@ class RainScene(LevelScene):
         if answer.result is Press.HIT:
             self.flashes[letter] = (HIT_FLASH, FLASH_MS)
             self.pops.append((self.drop_rect(drop).center, POP_MS))
+            self.app.audio.cancel(drop)  # its word, if it has not been said yet
             if picture:
                 self.app.audio.say_letter_and_word(letter, picture)
             else:
@@ -210,11 +211,12 @@ class RainScene(LevelScene):
             self.layout()
 
     def say_name(self, drop: Drop) -> None:
-        """A hint: the letter's name, or the picture's word."""
+        """A hint (on a bounce or a tap): the letter's name, or the picture's word. It is skipped
+        when the voice is already speaking."""
         if drop.item.picture:
-            self.app.audio.say_word(drop.item.shows)
+            self.app.audio.say_word(drop.item.shows, hint=True, key=drop)
         else:
-            self.app.audio.say_letter(drop.item.answer)
+            self.app.audio.say_letter(drop.item.answer, hint=True, key=drop)
 
     def toggle_keyboard(self) -> None:
         self.profile.settings["keyboard"] = not self.keyboard_shown
@@ -230,7 +232,7 @@ class RainScene(LevelScene):
         changes = self.game.advance(dt_ms)
         for drop in changes.appeared:
             if drop.item.picture:
-                self.app.audio.say_word(drop.item.shows)
+                self.app.audio.say_word(drop.item.shows, key=drop)
         for drop in changes.bounced:
             self.say_name(drop)
         relayout = bool(changes.appeared) and self.choosing

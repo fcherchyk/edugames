@@ -36,9 +36,11 @@ A second game, and the platform changes that any later game needs:
    - **Wrong:** the key flashes orange. Nothing is said and nothing is lost.
 3. An item that reaches the ground bounces back up to the top, says its name again as a hint, and
    falls again.
-4. Three right answers in a row make the rain a little faster; a wrong key or a bounce makes it a
+4. The game speaks with one voice: a word waits until the one before has ended, so two never talk
+   over each other.
+5. Three right answers in a row make the rain a little faster; a wrong key or a bounce makes it a
    little slower.
-5. A row of dots fills in gold with each right answer. When the row is full (the level's goal),
+6. A row of dots fills in gold with each right answer. When the row is full (the level's goal),
    the victory pop-up of Letter Pairs shows the avatar, 1 to 3 stars and the coins.
 
 ## Content
@@ -136,6 +138,7 @@ they are; the schema version does not change):
 - `ui/scenes/rain.py`: the Letter Rain screen; `ui/keyboard.py`: the on-screen keyboard;
   `ui/pictures.py`: the picture drawings, made with `paint.Pen` (the outlined shapes the avatar
   is drawn with, now shared).
+- `ui/audio.py`: one voice for everything the game says (S3_AC18).
 - `ui/scenes/path.py`: any game's levels, in one row up to five, in two rows up to ten.
 - `demo.py`: the demo also plays Letter Rain.
 
@@ -175,6 +178,9 @@ Taken with the owner before this slice started:
 - Answers are recorded per letter across games, with the key pressed instead; Letter Pairs does
   not record answers yet. They are saved at the end of a level and when leaving it.
 - Letter Pairs' level flow and victory pop-up move into a shared `LevelScene`.
+- Found in manual validation, with the real clips: on picture levels, "see… cat" and the next
+  picture's word played together. The game now speaks with one voice (S3_AC18), for Letter Pairs
+  too.
 - Picture Rain joins this slice as Letter Rain's picture levels, with tap one of three for the
   youngest; the picture album stays a slice of its own.
 - The "First Letter" placeholder is removed, so the home keeps its 2×2 grid.
@@ -280,8 +286,8 @@ falling item says its name (the letter, or the word) and does not clear it.
 
 ### S3_AC9: Pictures say their word
 
-A picture says its word when it appears. With no sound device, or a missing clip, the game is
-silent and keeps working.
+A picture says its word when it appears (as soon as the voice is free, see S3_AC18). With no
+sound device, or a missing clip, the game is silent and keeps working.
 
 - `tests/test_rain_ui.py::test_S3_AC9_a_picture_says_its_word_when_it_appears`
 - `tests/test_rain_ui.py::test_S3_AC9_a_missing_word_clip_is_silent`
@@ -363,3 +369,18 @@ with the keyboard hidden, a picture level, a picture level with three letters to
 a Letter Rain victory.
 
 - `tests/test_project.py::test_S3_AC17_the_demo_plays_letter_rain`
+
+### S3_AC18: The game speaks with one voice
+
+Everything the game says (letter names and words, in Letter Rain and Letter Pairs) goes through
+one voice, so two clips never play together: each waits until the one before has ended, and a
+letter's name and its word ("see… cat") stay together. A hint (a bounce, a tap) is dropped when
+the voice is busy; a picture's word that has not been said yet is dropped when the picture is
+found; and anything that waited more than 2.5 seconds is dropped, as too late to help.
+
+- `tests/test_voice.py::test_S3_AC18_clips_wait_their_turn_on_one_voice`
+- `tests/test_voice.py::test_S3_AC18_hints_are_dropped_when_the_voice_is_busy`
+- `tests/test_voice.py::test_S3_AC18_a_found_pictures_word_and_stale_clips_are_dropped`
+- `tests/test_voice.py::test_S3_AC18_on_a_sound_device_two_clips_never_play_together`
+- `tests/test_voice.py::test_S3_AC18_in_the_game_the_next_pictures_word_waits_for_see_cat`
+- `tests/test_voice.py::test_S3_AC18_letter_pairs_speaks_with_the_same_voice`

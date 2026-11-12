@@ -44,13 +44,14 @@ class App:
         self.store.save()
 
     def step(self, events: list[pygame.event.Event], dt_ms: int) -> None:
-        """One frame: events, then time, then drawing."""
+        """One frame: events, then time (the game's, then the voice's), then drawing."""
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
                 return
             self.scene.handle(event)
         self.scene.update(dt_ms)
+        self.audio.update(dt_ms)
         self.scene.draw(self.surface)
 
     async def run(self) -> None:
