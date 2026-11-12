@@ -1,5 +1,7 @@
 # Python
 .venv/
+venv/
+node_modules/
 __pycache__/
 *.pyc
 .coverage
@@ -8,6 +10,7 @@ htmlcov/
 .pytest_cache/
 .ruff_cache/
 dist/
+build/
 
 # Sandbox scripts (dependency state, screenshots)
 .sandbox/
