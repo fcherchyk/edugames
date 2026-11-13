@@ -2,7 +2,6 @@
 
 import pygame
 
-from edugames.core import avatar as options
 from edugames.core.avatar import Avatar
 from edugames.core.profiles import (
     MAX_AGE,
@@ -13,7 +12,8 @@ from edugames.core.profiles import (
     new_profile,
 )
 from edugames.ui import paint, style
-from edugames.ui.avatar_draw import draw_avatar, draw_head
+from edugames.ui.avatar_draw import draw_avatar
+from edugames.ui.look_picker import LookPicker
 from edugames.ui.scenes.base import Scene
 from edugames.ui.widgets import Button, draw_text, name_tag
 
@@ -35,7 +35,8 @@ class ProfileSelectScene(Scene):
         for index, profile in enumerate(self.app.store.profiles):
 
             def draw_tile(surface, rect, profile=profile):
-                draw_avatar(surface, profile.avatar, (rect.centerx, rect.centery - 22), 190)
+                # a little smaller than the tile, so that a tall hat stays inside it
+                draw_avatar(surface, profile.avatar, (rect.centerx, rect.centery - 12), 166)
                 draw_text(surface, profile.name, 40, (rect.centerx, rect.bottom - 35), title=True)
 
             self.buttons.append(
@@ -79,13 +80,8 @@ class ProfileSelectScene(Scene):
         self.draw_title(surface, self.content.text("who_is_playing"))
 
 
-# The look step: one row per choice, each option drawn as it would look.
-LOOK_ROWS = (
-    ("face", options.FACES),
-    ("skin", tuple(options.SKIN_TONES)),
-    ("hair_style", options.HAIR_STYLES),
-    ("hair_color", tuple(options.HAIR_COLORS)),
-)
+LOOK_LEFT, LOOK_TOP = 470, 150  # the look's chips, right of the mirror
+MIRROR_CENTER, MIRROR_RADIUS = (240, 370), 165
 NAME_STEP, AGE_STEP, LOOK_STEP = "name", "age", "look"
 
 
@@ -95,11 +91,14 @@ class ProfileCreateScene(Scene):
         self.name = ""
         self.age: int | None = None
         self.avatar = Avatar()
+        self.picker = LookPicker(app.content, LOOK_LEFT, LOOK_TOP)
         super().__init__(app)
         pygame.key.start_text_input()
 
     def layout(self) -> None:
-        back = {NAME_STEP: self.cancel, AGE_STEP: self.to_name, LOOK_STEP: self.to_age}[self.step]
+        back = {NAME_STEP: self.cancel, AGE_STEP: self.to_name, LOOK_STEP: self.look_back}[
+            self.step
+        ]
         self.buttons = [self.back_button(self.content.text("back"), back)]
         getattr(self, f"_layout_{self.step}")()
 
@@ -135,30 +134,21 @@ class ProfileCreateScene(Scene):
             )
 
     def _layout_look(self) -> None:
-        size, gap, left = style.MIN_TARGET, 18, 470
-        for row, (field, values) in enumerate(LOOK_ROWS):
-            for col, value in enumerate(values):
-                rect = pygame.Rect(left + col * (size + gap), 150 + row * (size + 30), size, size)
-                self.buttons.append(
-                    Button(
-                        rect,
-                        lambda field=field, value=value: self.choose_look(field, value),
-                        name=f"{field}:{value}",
-                        draw=lambda surface, rect, field=field, value=value: self._draw_option(
-                            surface, rect, field, value
-                        ),
-                        selected=getattr(self.avatar, field) == value,
-                    )
-                )
+        """One thing at a time, in order: "Next" until the last, then "Done". The chips jump to
+        any of them."""
+        self.buttons += self.picker.buttons(self.avatar, self.layout, self.layout)
         rect = pygame.Rect(0, 0, 300, style.MIN_TARGET)
-        rect.bottomright = (style.WIDTH - 60, style.HEIGHT - 50)
+        rect.bottomright = (style.WIDTH - 60, style.HEIGHT - 24)
+        last = self.picker.is_last
         self.buttons.append(
-            Button(rect, self.finish, label=self.content.text("done"), name="done", primary=True)
+            Button(
+                rect,
+                self.finish if last else self.look_next,
+                label=self.content.text("done" if last else "next"),
+                name="done" if last else "next",
+                primary=True,
+            )
         )
-
-    def _draw_option(self, surface, rect, field, value) -> None:
-        preview = Avatar(**{**vars(self.avatar), field: value})
-        draw_head(surface, preview, (rect.centerx, rect.centery + 8), rect.w * 0.36)
 
     def valid_name(self) -> bool:
         try:
@@ -203,9 +193,20 @@ class ProfileCreateScene(Scene):
         self.step = LOOK_STEP
         self.layout()
 
-    def choose_look(self, field: str, value: str) -> None:
-        setattr(self.avatar, field, value)
+    def look_next(self) -> None:
+        self.picker.next()
         self.layout()
+
+    def look_back(self) -> None:
+        """Back through the look's steps, then to the age."""
+        if self.picker.index == 0:
+            self.to_age()
+            return
+        self.picker.previous()
+        self.layout()
+
+    def update(self, dt_ms: int) -> None:
+        self.picker.update(dt_ms)
 
     def finish(self) -> None:
         from edugames.ui.scenes.home import HomeScene
@@ -226,5 +227,6 @@ class ProfileCreateScene(Scene):
             self.draw_title(surface, self.content.text("how_old"))
         else:
             self.draw_title(surface, self.content.text("your_look"))
-            draw_avatar(surface, self.avatar, (240, 432), 420)
-            name_tag(surface, self.name, (240, 700))
+            self.picker.draw(surface)
+            self.picker.draw_mirror(surface, self.avatar, MIRROR_CENTER, MIRROR_RADIUS)
+            name_tag(surface, self.name, (240, 710))

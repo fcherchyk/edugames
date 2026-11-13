@@ -66,6 +66,9 @@ Drawings and scenery carry no text, so they are shared by every language.
 - No network, ads, analytics or purchases with real money. The only personal data is a first
   name and an age, kept on the device, with the player's progress, answers and settings.
 - Rewards: stars mark progress (1 to 3 per level; a win never gives 0), coins buy cosmetic items.
+- The shop sells nothing but looks, only for coins won by playing. Everything can be tried on for
+  free before an explicit "Buy"; prices are small round numbers; nothing is random (no mystery
+  boxes), nothing is for a limited time, and nothing urges the child to come back or to spend.
 
 ## Assets
 
@@ -74,7 +77,8 @@ Drawings and scenery carry no text, so they are shared by every language.
   checks the list against the files.
 - Generated assets come from a script in `scripts/` that can run again. Tools with other licences
   (for example Piper, GPL) run through `uvx` and are never dependencies.
-- Prefer shapes drawn in code (the avatar) when colours or variants must change.
+- Prefer shapes drawn in code (the avatar, its items, the pictures) when colours or variants
+  must change.
 
 ## Art style
 

@@ -1,5 +1,5 @@
-"""S1_AC2 to S1_AC4, S3_AC7 and S3_AC15: creating, choosing and saving player profiles, with
-their settings and answers."""
+"""S1_AC2 to S1_AC4, S3_AC7, S3_AC15, S4_AC14 and S4_AC16: creating, choosing and saving player
+profiles, with their settings, answers and looks."""
 
 import json
 
@@ -8,6 +8,7 @@ import pytest
 from edugames.core import progress, storage
 from edugames.core.avatar import Avatar, AvatarError
 from edugames.core.profiles import (
+    MAX_AGE,
     MAX_PROFILES,
     ProfileError,
     ProfileStore,
@@ -27,12 +28,12 @@ def test_S1_AC2_invalid_names_are_refused(name) -> None:
         clean_name(name)
 
 
-@pytest.mark.parametrize("age", [3, 5, 8])
-def test_S1_AC2_ages_3_to_8_are_accepted(age) -> None:
+@pytest.mark.parametrize("age", [3, 5, 7])
+def test_S1_AC2_ages_3_to_7_are_accepted(age) -> None:  # 3 to 8 before S4
     assert new_profile("Sam", age).age == age
 
 
-@pytest.mark.parametrize("age", [2, 9, -1])
+@pytest.mark.parametrize("age", [2, 8, 9, -1])
 def test_S1_AC2_other_ages_are_refused(age) -> None:
     with pytest.raises(ProfileError):
         new_profile("Sam", age)
@@ -170,3 +171,35 @@ def test_S3_AC15_old_profiles_load_and_damaged_answers_are_dropped(tmp_path) -> 
     assert loaded.get(sam.id).answers == {} and loaded.get(sam.id).settings == {}
     assert list(loaded.get("two").answers) == ["letters"]
     assert list(loaded.get("two").answers["letters"]) == ["A"]  # the damaged ones are dropped
+
+
+def test_S4_AC14_a_player_saved_as_8_loads_as_7(tmp_path) -> None:
+    players = [
+        {"id": "a", "name": "Eight", "age": 8},
+        {"id": "b", "name": "Nine", "age": 9},
+        {"id": "c", "name": "Six", "age": 6},
+    ]
+    storage.save_json(tmp_path / "profiles.json", {"profiles": players})
+
+    store = ProfileStore(tmp_path)
+
+    assert [(p.name, p.age) for p in store.profiles] == [("Eight", 7), ("Six", 6)]
+    assert MAX_AGE == 7
+
+
+def test_S4_AC16_old_or_damaged_eye_colours_and_freckles_get_the_default(tmp_path) -> None:
+    players = [
+        {"id": "a", "name": "Old", "age": 5, "avatar": {"face": "wink"}},
+        {"id": "b", "name": "Odd", "age": 5, "avatar": {"eye_color": "purple", "freckles": "yes"}},
+        {"id": "c", "name": "New", "age": 5, "avatar": {"eye_color": "green", "freckles": True}},
+    ]
+    storage.save_json(tmp_path / "profiles.json", {"profiles": players})
+
+    looks = {p.name: p.avatar for p in ProfileStore(tmp_path).profiles}
+
+    assert (looks["Old"].eye_color, looks["Old"].freckles) == ("brown", False)
+    assert (looks["Odd"].eye_color, looks["Odd"].freckles) == ("brown", False)
+    assert (looks["New"].eye_color, looks["New"].freckles) == ("green", True)
+    for wrong in ({"eye_color": "purple"}, {"freckles": "yes"}):
+        with pytest.raises(AvatarError):
+            Avatar(**wrong).validate()

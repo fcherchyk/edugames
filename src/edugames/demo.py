@@ -20,6 +20,7 @@ from edugames.core.profiles import ProfileStore  # noqa: E402
 from edugames.ui import style  # noqa: E402
 from edugames.ui.app import App  # noqa: E402
 from edugames.ui.audio import Audio  # noqa: E402
+from edugames.ui.look_picker import SPARKLE_MS, option_name  # noqa: E402
 from edugames.ui.scenes.memory import TURN_BACK_MS, MemoryScene  # noqa: E402
 from edugames.ui.scenes.rain import RainScene  # noqa: E402
 
@@ -31,6 +32,19 @@ def click(app: App, name: str) -> None:
     """Tap the centre of the current screen's button called `name`, then draw a frame."""
     pos = app.scene.button(name).rect.center
     app.step([pygame.event.Event(pygame.MOUSEBUTTONUP, button=1, pos=pos)], FRAME_MS)
+
+
+def choose_look(app: App, field: str, value: object) -> None:
+    """Open the look's chip for `field` and tap `value` (creating a player or in the Me tab)."""
+    click(app, f"look:{field}")
+    click(app, option_name(field, value))
+
+
+def finish_look(app: App) -> None:
+    """Go through the rest of a new player's look with "Next", then tap "Done"."""
+    while "done" not in [button.name for button in app.scene.buttons]:
+        click(app, "next")
+    click(app, "done")
 
 
 def type_text(app: App, text: str) -> None:
@@ -107,10 +121,12 @@ def run_demo(out_dir: Path, data_dir: Path, seed: int = 7) -> list[Path]:
     shot("name")
     click(app, "next")
     click(app, "age:5")
-    for choice in ("face:grin", "hair_style:curly", "hair_color:red", "skin:tan"):
-        click(app, choice)
+    for field, value in (("face", "grin"), ("hair_style", "curly"), ("skin", "tan")):
+        choose_look(app, field, value)
+    choose_look(app, "hair_color", "red")  # the mirror sparkles on the hair
+    app.step([], SPARKLE_MS // 2)
     shot("look")
-    click(app, "done")
+    finish_look(app)
     shot("home")
     click(app, "game:memory")
     shot("path")
@@ -128,9 +144,10 @@ def run_demo(out_dir: Path, data_dir: Path, seed: int = 7) -> list[Path]:
     click(app, "path")
     shot("path-after-win")
     click(app, "back")
-    click(app, "wardrobe")
-    click(app, "shirt:green")
-    shot("wardrobe")
+    click(app, "shop")
+    click(app, "head:party_hat")  # tried on, with the price to buy it
+    shot("shop")
+    click(app, "buy")
     click(app, "back")
     click(app, "game:rain")
     shot("rain-path")
@@ -152,13 +169,35 @@ def run_demo(out_dir: Path, data_dir: Path, seed: int = 7) -> list[Path]:
     type_text(app, "Mia")
     click(app, "next")
     click(app, "age:4")
-    click(app, "done")
+    finish_look(app)
     click(app, "game:rain")
     click(app, "level:1")
     win_rain_game(app)
     play_to_picture_levels(app)
     wait_for_item(app, 0.3)
     shot("rain-choices")
+    for _ in ("path", "home"):
+        click(app, "back")
+    click(app, "shop")
+    click(app, "head:crown")  # too dear yet: the coins fill a bar towards its price
+    shot("shop-saving")
+    click(app, "tab:back")
+    click(app, "back:butterfly_wings")
+    click(app, "buy")
+    shot("shop-bought")
+    click(app, "tab:eyes")
+    click(app, "eyes:star_glasses")
+    click(app, "buy")
+    click(app, "tab:me")
+    choose_look(app, "eye_color", "green")
+    choose_look(app, "freckles", True)  # the star glasses are off in the mirror for the freckles
+    app.step([], SPARKLE_MS // 2)
+    shot("shop-me")
+    click(app, "tab:pet")
+    click(app, "pet:kitten")  # tried on: 10 coins are not enough yet
+    shot("shop-pets")
+    click(app, "back")
+    shot("home-dressed")
     return shots
 
 

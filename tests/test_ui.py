@@ -5,7 +5,7 @@ import pytest
 
 from edugames.core.avatar import FACES, HAIR_COLORS, HAIR_STYLES, SKIN_TONES, Avatar
 from edugames.core.profiles import new_profile
-from edugames.demo import click, type_text, win_memory_game
+from edugames.demo import choose_look, click, finish_look, type_text, win_memory_game
 from edugames.ui import style
 from edugames.ui.app import FPS, App
 from edugames.ui.audio import Audio
@@ -14,7 +14,7 @@ from edugames.ui.scenes.home import HomeScene
 from edugames.ui.scenes.memory import TURN_BACK_MS, MemoryScene, card_rects
 from edugames.ui.scenes.path import PathScene
 from edugames.ui.scenes.profiles import ProfileCreateScene, ProfileSelectScene
-from edugames.ui.scenes.wardrobe import WardrobeScene
+from edugames.ui.scenes.shop import ShopScene
 
 
 def key(app: App, code: int) -> None:
@@ -55,9 +55,9 @@ def test_S1_AC2_a_new_player_types_a_name_picks_an_age_and_a_look(app) -> None:
     assert app.scene.name == "Sam"
     click(app, "next")
     click(app, "age:5")
-    click(app, "face:wink")
-    click(app, "hair_style:bun")
-    click(app, "done")
+    choose_look(app, "face", "wink")  # since S4 the look is chosen one thing at a time
+    choose_look(app, "hair_style", "bun")
+    finish_look(app)
 
     (profile,) = app.store.profiles
     assert (profile.name, profile.age) == ("Sam", 5)
@@ -254,7 +254,6 @@ def test_S1_AC14_the_look_step_offers_every_option(app) -> None:
     type_text(app, "Sam")
     click(app, "next")
     click(app, "age:6")
-    names = {b.name for b in app.scene.buttons}
 
     for field, values in (
         ("face", FACES),
@@ -262,21 +261,26 @@ def test_S1_AC14_the_look_step_offers_every_option(app) -> None:
         ("hair_style", HAIR_STYLES),
         ("hair_color", HAIR_COLORS),
     ):
+        click(app, f"look:{field}")  # since S4, one thing at a time
+        names = {b.name for b in app.scene.buttons}
         assert {f"{field}:{v}" for v in values} <= names
     app.step([], 16)
     assert isinstance(app.scene, ProfileCreateScene)
 
 
 def test_S1_AC15_the_wardrobe_buys_and_wears_a_colour(app) -> None:
+    # Since S4 the wardrobe is the shop's shirt tab: a colour is tried on, then bought.
     start_as(app, coins=6)
-    click(app, "wardrobe")
-    assert isinstance(app.scene, WardrobeScene)
-    assert app.scene.button("shirt:green").enabled
+    click(app, "shop")
+    assert isinstance(app.scene, ShopScene)
+    click(app, "tab:shirt")
 
     click(app, "shirt:green")
+    click(app, "buy")
 
     assert app.profile.avatar.shirt == "green" and app.profile.coins == 1
-    assert not app.scene.button("shirt:yellow").enabled  # 1 coin is not enough
+    click(app, "shirt:yellow")
+    assert not app.scene.button("buy").enabled  # 1 coin is not enough
     click(app, "shirt:blue")  # free colour
     assert app.profile.avatar.shirt == "blue"
     click(app, "back")

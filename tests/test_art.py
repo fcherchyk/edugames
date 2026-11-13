@@ -74,6 +74,10 @@ def looks() -> list[Avatar]:
         "hair_style": options.HAIR_STYLES,
         "hair_color": options.HAIR_COLORS,
         "shirt": options.SHIRT_COLORS,
+        # the shop's items (S4) are drawn on every look too, as are eye colours and freckles
+        **{slot: [""] for slot in options.ACCESSORY_SLOTS},
+        "eye_color": options.EYE_COLORS,
+        "freckles": options.FRECKLES,
     }
     return [Avatar(**{f.name: value}) for f in fields(Avatar) for value in choices[f.name]]
 
@@ -154,8 +158,12 @@ def test_S2_AC4_next_done_and_next_level_are_main_actions_and_every_target_is_bi
     seen["next"] = app.scene.button("next")
     click(app, "next")
     click(app, "age:5")
-    seen["done"] = app.scene.button("done")
     targets = list(app.scene.buttons)
+    seen["look_next"] = app.scene.button("next")
+    while "done" not in [b.name for b in app.scene.buttons]:  # the look's steps (S4)
+        click(app, "next")
+        targets += app.scene.buttons
+    seen["done"] = app.scene.button("done")
     click(app, "done")
     targets += app.scene.buttons
     click(app, "game:memory")

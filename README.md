@@ -6,14 +6,16 @@ and lower case, first letters of words, spelling, drawing letters, and numbers a
 Slice 1 (MVP) ships **Letter Pairs**, a memory game where `A` is matched with `a`, and the
 platform around it: player profiles, a goal path with stars, coins, and an avatar to dress up.
 Slice 3 adds **Letter Rain**: letters, then pictures, fall gently, and the child finds their letter
-on the keyboard.
+on the keyboard. Slice 4 turns the wardrobe into an **avatar shop**: hats, glasses, wings, shoes
+and pets, tried on for free and bought with the coins won.
 
 A desktop app in Python with [pygame-ce](https://pyga.me/), for macOS, Linux and Windows.
 
 ## Features
 
-- **Players:** several profiles on one computer, each with a first name, an age and an avatar
-  (face, skin tone, hair style and hair colour). The age decides which games are offered.
+- **Players:** several profiles on one computer, each with a first name, an age (3 to 7) and an
+  avatar (face, skin tone, hair style, hair colour, eye colour and freckles, chosen one at a time
+  in a mirror, and changed for free at any time). The age decides which games are offered.
 - **Letter Pairs:** turn two cards over to match a capital letter with its small letter. Every
   card says its letter's name when it is turned. No timer and no way to lose.
 - **Letter Rain:** letters fall from the sky and pop when the child presses them, on the real
@@ -25,11 +27,19 @@ A desktop app in Python with [pygame-ce](https://pyga.me/), for macOS, Linux and
 - **Goal path:** one per game. Letter Pairs has 5 levels, from 3 easy pairs to 8 random letters,
   including the commonly confused `b d p q`; Letter Rain has 10, in two rows. Each level opens
   when the one before is won, and keeps its best 1 to 3 stars.
-- **Coins and wardrobe:** every win gives coins, which buy shirt colours for the avatar.
-- **Victory pop-up:** the avatar celebrates, with the stars and coins earned.
+- **Coins and the shop:** the first win of a level gives 3 to 5 coins, a replay 2. Coins buy
+  things for the avatar: 8 hats (up to a crown and a space helmet), 6 glasses and masks, 5 wings
+  and capes (up to a jetpack), 7 pairs of shoes (up to rocket boots), 18 pets in five kinds
+  (cats, dogs, birds, monsters, robots) and 8 shirt colours. Anything can be tried on for free; a green "Buy" pill with the
+  price buys it, and a gold bar shows how close the coins are. Some items open when the player
+  reaches their world on the path (the penguin in the snow, the jetpack in space), and the
+  victory pop-up shows what a win opened. Prices are small round numbers; nothing is random or
+  for a limited time. The shop's "Me" tab changes the look for free.
+- **Victory pop-up:** the avatar celebrates, with the stars and coins earned (and what is new in
+  the shop).
 - **Art style:** a cel-shaded chibi avatar, rolling hills and a checkered ground, a world per
   level (meadow, beach, forest, snow, space), glossy stars and coins, letters in Montessori
-  colours (vowels red, consonants blue), and 22 pictures drawn in code.
+  colours (vowels red, consonants blue), 22 pictures and 44 avatar items drawn in code.
 - **Answers per letter:** every answer in Letter Rain is kept per letter and per picture, with the
   key pressed instead (`b` for `d`), for a future parents' area and practice of confused letters.
 - **Private by design:** no network, no accounts, no ads; only a first name and an age (and the
@@ -57,8 +67,9 @@ uv run ruff format --check .
 Tests run without a window or sound card (SDL's dummy drivers). CI runs them on macOS, Ubuntu
 and Windows. Each test is named after the acceptance criterion it covers (`test_S1_AC7_…`); the
 criteria are in [`docs/S1_mvp.md`](docs/S1_mvp.md),
-[`docs/S2_art_style.md`](docs/S2_art_style.md) and
-[`docs/S3_letter_rain.md`](docs/S3_letter_rain.md).
+[`docs/S2_art_style.md`](docs/S2_art_style.md),
+[`docs/S3_letter_rain.md`](docs/S3_letter_rain.md) and
+[`docs/S4_avatar_shop.md`](docs/S4_avatar_shop.md).
 
 ## Sandbox
 
@@ -81,8 +92,10 @@ The same demo runs anywhere with `uv run python -m edugames.demo <dir>`.
 
 ```
 src/edugames/
-  core/          game rules, scoring, answers, profiles, storage, content loading (no pygame)
-  ui/            window, screens, widgets, keyboard, avatar, pictures, scenery, art helpers, audio
+  core/          game rules, scoring, answers, profiles, the shop's items and rules, storage,
+                 content loading (no pygame)
+  ui/            window, screens, widgets, keyboard, avatar and its items, pictures, scenery,
+                 art helpers, audio
   content/en/    letters, games, levels per game, pictures, keyboard and UI strings (English)
   assets/        Andika and Fredoka fonts, letter-name and picture-word clips
   demo.py        scripted headless playthrough
@@ -105,7 +118,7 @@ One slice at a time, in this order. Each slice gets its acceptance criteria in
 | S1 ✅ | Profiles, goal path and Letter Pairs | — |
 | S2 ✅ | Art style and a world per level | — |
 | S3 ✅ | **Letter Rain:** capital and small letters fall and vanish when the child finds them on the keyboard; then pictures fall and vanish when their first letter is pressed (tap one of 3 letters for the youngest) | Levels per game; an on-screen keyboard showing both cases on each key, which can be hidden; the gentle fall (see below); every answer recorded per letter and picture; a library of pictures drawn in code, each a language-neutral concept with a word and its audio per locale |
-| S4 | **Avatar shop:** crowns, helmets, wings and more, bought with coins | Item drawings in the art style; the wardrobe becomes a shop |
+| S4 ✅ | **Avatar shop:** crowns, helmets, wings and more, bought with coins | Item drawings in the art style; the wardrobe becomes a shop |
 | S5 | **Letter games:** *Write Your Name* (build your own name letter by letter), *Draw Letters* (trace a letter following arrows), *Find the Letter* (spot every `m` in a scene) | The keyboard; the player's name; tracing with mouse or touch |
 | S6 | **Picture album:** every word found in Letter Rain becomes a sticker | The pictures and the answers per picture of S3 |
 | S7 | **Numbers:** *Numbers 1 to 10* (recognise and count, spoken numbers), *Count and Match* (numbers with quantities of things), *Biggest Number* (pick the largest of several). Levels go up to 5, then 10, 20 and 50 | The pictures of S3, to count; numbers in the content |

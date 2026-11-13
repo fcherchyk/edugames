@@ -1,5 +1,5 @@
-"""S1_AC1, S1_AC17, S1_AC18 and S3_AC17: platforms, asset licences, the sandbox demo and the
-docs."""
+"""S1_AC1, S1_AC17, S1_AC18, S3_AC17 and S4_AC12: platforms, asset licences, the sandbox demo
+and the docs."""
 
 import asyncio
 import re
@@ -70,13 +70,13 @@ def test_S1_AC1_the_sandbox_demo_saves_a_picture_of_every_screen(demo_shots) -> 
         "memory",
         "victory",
         "path-after-win",
-        "wardrobe",
+        "shop",
     ]
     assert all(pygame.image.load(p).get_size() == (1280, 800) for p in shots)
 
 
 def test_S3_AC17_the_demo_plays_letter_rain(demo_shots) -> None:
-    assert [p.stem.split("-", 1)[1] for p in demo_shots][9:] == [
+    assert [p.stem.split("-", 1)[1] for p in demo_shots][9:15] == [
         "rain-path",
         "rain-letters",
         "rain-no-keyboard",
@@ -84,6 +84,13 @@ def test_S3_AC17_the_demo_plays_letter_rain(demo_shots) -> None:
         "rain-pictures",
         "rain-choices",
     ]
+
+
+def test_S4_AC12_the_demo_visits_the_shop(demo_shots) -> None:
+    names = [p.stem.split("-", 1)[1] for p in demo_shots]
+
+    assert names[8] == "shop"  # Sam tries the party hat on, then buys it
+    assert names[15:] == ["shop-saving", "shop-bought", "shop-me", "shop-pets", "home-dressed"]
 
 
 def test_S1_AC17_every_asset_is_credited_with_an_allowed_licence() -> None:
@@ -131,7 +138,7 @@ def in_sources(slice_: int) -> dict[int, set[str]]:
 
 
 def test_S1_AC18_every_slice_has_a_doc() -> None:
-    assert sorted(DOCS) == [1, 2, 3]
+    assert sorted(DOCS) == [1, 2, 3, 4]
     assert DOCS[1] == DOC
 
 

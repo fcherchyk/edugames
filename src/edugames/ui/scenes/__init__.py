@@ -1,4 +1,4 @@
-"""The screens: choose or create a player, home, goal path, the games and the wardrobe."""
+"""The screens: choose or create a player, home, goal path, the games and the shop."""
 
 from typing import TYPE_CHECKING
 

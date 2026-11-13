@@ -132,7 +132,6 @@ class PathScene(Scene):
         return rect
 
     def draw_scene(self, surface: pygame.Surface) -> None:
-        self.draw_title(surface, self.content.game(self.game_id).title)
         self.draw_coin_count(surface)
         centers = node_centers(len(self.levels))
         points = road_points(centers)
@@ -149,3 +148,5 @@ class PathScene(Scene):
         height = sizes(len(self.levels))["avatar"]
         center = node_centers(len(self.levels))[self.current_index()]
         draw_avatar(surface, self.profile.avatar, avatar_center(center, height), height)
+        # after the avatar, so that a tall hat goes behind the title instead of over its letters
+        self.draw_title(surface, self.content.game(self.game_id).title)

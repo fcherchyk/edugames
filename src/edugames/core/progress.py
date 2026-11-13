@@ -1,4 +1,4 @@
-"""Stars (progress along the goal path), coins (spent in the wardrobe) and the answers given for
+"""Stars (progress along the goal path), coins (spent in the shop) and the answers given for
 each letter and picture."""
 
 from collections.abc import Sequence
@@ -20,8 +20,10 @@ def stars_for(chances: int, mistakes: int) -> int:
     return 1
 
 
-def coins_for(stars: int) -> int:
-    return BASE_COINS + stars
+def coins_for(stars: int, replay: bool = False) -> int:
+    """2 coins plus 1 per star the first time a level is won; a replay gives the 2 coins only, so
+    that replaying an easy level is not the quickest way to fill the purse (S4)."""
+    return BASE_COINS if replay else BASE_COINS + stars
 
 
 def best_stars(profile: Profile, game_id: str, level_id: str) -> int:
@@ -43,12 +45,12 @@ class Win:
 
 
 def record_win(profile: Profile, game_id: str, level_id: str, stars: int) -> Win:
-    """Add the coins and keep the level's best stars."""
+    """Add the coins (fewer for a replay) and keep the level's best stars."""
     stars = max(1, min(MAX_STARS, stars))
     previous = best_stars(profile, game_id, level_id)
     if stars > previous:
         profile.progress.setdefault(game_id, {})[level_id] = stars
-    coins = coins_for(stars)
+    coins = coins_for(stars, replay=previous > 0)
     profile.coins += coins
     return Win(stars=stars, coins=coins, new_best=stars > previous)
 

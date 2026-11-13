@@ -9,11 +9,12 @@
   "skin": "Skin",
   "hair": "Hair",
   "hair_color": "Hair colour",
+  "eye_color": "Eyes",
+  "freckles": "Freckles",
   "next": "Next",
   "back": "Back",
   "done": "Done",
   "coming_soon": "Coming soon",
-  "wardrobe": "Wardrobe",
   "players": "Players",
   "level": "Level {number}",
   "you_did_it": "You did it!",
@@ -22,5 +23,13 @@
   "path": "Path",
   "home": "Home",
   "wear": "Wear",
-  "wearing": "Wearing"
+  "wearing": "Wearing",
+  "shop": "Shop",
+  "buy": "Buy",
+  "new_in_shop": "New in the shop!",
+  "pet_cat": "Cat",
+  "pet_dog": "Dog",
+  "pet_bird": "Bird",
+  "pet_monster": "Monster",
+  "pet_robot": "Robot"
 }

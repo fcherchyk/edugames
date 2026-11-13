@@ -148,3 +148,23 @@ def name_tag(surface: pygame.Surface, name: str, center: Point, size: int = 44) 
     tag.center = center
     paint.draw_box(surface, tag, style.WHITE, tag.h // 2, lip=False)
     draw_text(surface, name, size, center, bold=True)
+
+
+def fitting_size(text: str, width: int, size: int) -> int:
+    """The largest title font size up to `size` at which `text` fits in `width` pixels."""
+    while size > 12 and style.title_font(size).size(text)[0] > width:
+        size -= 1
+    return size
+
+
+CHIP_PICTURE_Y = 38  # the picture's centre, from the chip's top; the word sits at the bottom
+
+
+def draw_chip(
+    surface: pygame.Surface, rect: pygame.Rect, picture: pygame.Surface, word: str
+) -> None:
+    """What a chip shows (a choice of kind, not a thing to buy): a picture, and its word under
+    it, in a size that fits."""
+    surface.blit(picture, picture.get_rect(center=(rect.centerx, rect.top + CHIP_PICTURE_Y)))
+    size = fitting_size(word, rect.w - 14, 22)
+    draw_text(surface, word, size, (rect.centerx, rect.bottom - 20), title=True)

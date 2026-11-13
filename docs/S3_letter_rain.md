@@ -325,7 +325,7 @@ Each level starts at normal speed (its `fall_seconds`). Every three right answer
 
 A row of dots, one per right answer of the goal, fills in gold. At the goal, the items left
 vanish and the victory pop-up shows the stars (3 with at most one miss per right answer, 2 with at
-most two, otherwise 1) and the coins (2 plus 1 per star, replays included). The next level opens;
+most two, otherwise 1) and the coins (2 plus 1 per star, replays included; since S4_AC13 a replay gives 2). The next level opens;
 the last level has no "Next level" button.
 
 - `tests/test_rain_game.py::test_S3_AC13_the_level_ends_after_its_goal_of_right_answers`

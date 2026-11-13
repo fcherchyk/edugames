@@ -43,13 +43,14 @@ window is closed. CI runs the tests on macOS, Ubuntu and Windows. With no displa
 ### S1_AC2: A new player gives a name, an age and a look
 
 Given the "New player" tile, the player types a name (1 to 12 letters, spaces, hyphens or
-apostrophes; other characters are dropped), picks an age from 3 to 8, and chooses a look. Invalid
+apostrophes; other characters are dropped), picks an age from 3 to 8 (3 to 7 since S4_AC14), and
+chooses a look. Invalid
 names, ages and avatar options are refused. "Back" goes one step back, and from the first step
 cancels.
 
 - `tests/test_profiles.py::test_S1_AC2_valid_names_are_accepted_and_trimmed`
 - `tests/test_profiles.py::test_S1_AC2_invalid_names_are_refused`
-- `tests/test_profiles.py::test_S1_AC2_ages_3_to_8_are_accepted`
+- `tests/test_profiles.py::test_S1_AC2_ages_3_to_7_are_accepted`
 - `tests/test_profiles.py::test_S1_AC2_other_ages_are_refused`
 - `tests/test_profiles.py::test_S1_AC2_an_unknown_avatar_option_is_refused`
 - `tests/test_ui.py::test_S1_AC2_a_new_player_types_a_name_picks_an_age_and_a_look`
@@ -151,7 +152,8 @@ the first open level not won yet (or the last one).
 
 ### S1_AC12: Coins
 
-Every win, replays included, gives 2 coins plus 1 per star, saved at once.
+Every win, replays included, gives 2 coins plus 1 per star, saved at once. (Since S4_AC13 a replay
+gives the 2 coins only.)
 
 - `tests/test_progress.py::test_S1_AC12_every_win_gives_coins_replays_included`
 - `tests/test_ui.py::test_S1_AC10_S1_AC11_S1_AC12_a_win_saves_stars_coins_and_opens_the_next_level`
@@ -174,7 +176,8 @@ as it would look. The avatar is drawn with shapes, so colours change without ima
 
 ### S1_AC15: Wardrobe
 
-Of 8 shirt colours, 2 are free and the others cost 5 coins. A colour is bought with enough coins
+Of 8 shirt colours, 2 are free and the others cost 5 coins (since S4, the shop's shirt tab, where a
+colour is tried on before it is bought). A colour is bought with enough coins
 (refused otherwise) and worn; owned colours can be worn again at any time.
 
 - `tests/test_progress.py::test_S1_AC15_free_shirts_are_owned_from_the_start`

@@ -1,19 +1,22 @@
 """The avatar: a chibi kid drawn with shapes (navy outline, one cel shade), so that any colour can
-change without image files. Each look is drawn once per size and cached."""
+change without image files, wearing the items bought in the shop (`ui/items_draw.py`). Each look
+is drawn once per size and cached."""
 
 import math
 from functools import lru_cache
 
 import pygame
 
-from edugames.core.avatar import HAIR_COLORS, SHIRT_COLORS, SKIN_TONES, Avatar
+from edugames.core.avatar import EYE_COLORS, HAIR_COLORS, SHIRT_COLORS, SKIN_TONES, Avatar
 from edugames.ui import paint, style
+from edugames.ui.items_draw import ITEMS_FRAME, UNDER_THE_EYES, ItemPen, draw_item
 from edugames.ui.paint import K, shade
 
 NAVY = style.OUTLINE
 PANTS = (60, 70, 140)
 SHOES = (240, 80, 70)
-IRIS = (95, 62, 40)
+FRECKLE = (125, 72, 45)
+FRECKLE_SPOTS = ((44, -232), (58, -236), (72, -229), (52, -222), (66, -220), (80, -222))
 BLUSH = (240, 125, 120)
 MOUTH = (125, 30, 50)
 TONGUE = (240, 110, 120)
@@ -22,6 +25,7 @@ OUTLINE_W = 4  # in figure units
 # The figure is drawn in "units" with the feet at (0, 0): about 400 units tall.
 FIGURE = (-150, -425, 150, 20)  # left, top, right, bottom
 HEAD = (-128, -418, 128, -138)  # the part shown by draw_head
+BUST = (-215, -530, 215, -60)  # the head and shoulders, with a hat and wings: draw_bust
 HEAD_CENTER, HEAD_R = (0, -268), 104
 
 
@@ -32,39 +36,56 @@ def draw_avatar(
     height: int,
     celebrating: bool = False,
 ) -> None:
-    """The whole figure, `height` pixels tall, centred on `center`; arms up when celebrating."""
-    sprite = sprite_for(_key(avatar), max(8, height), celebrating, FIGURE)
-    surface.blit(sprite, sprite.get_rect(center=center))
+    """The whole figure, `height` pixels tall, centred on `center`; arms up when celebrating.
+    Items (wings, a tall hat) may reach outside that box: the body keeps its size and place."""
+    height = max(8, height)
+    sprite = sprite_for(_key(avatar), height, celebrating, ITEMS_FRAME)
+    u = height / (FIGURE[3] - FIGURE[1])
+    left = center[0] - ((FIGURE[0] + FIGURE[2]) / 2 - ITEMS_FRAME[0]) * u
+    top = center[1] - ((FIGURE[1] + FIGURE[3]) / 2 - ITEMS_FRAME[1]) * u
+    surface.blit(sprite, (round(left), round(top)))
 
 
 def draw_head(surface: pygame.Surface, avatar: Avatar, center: tuple[int, int], r: float) -> None:
     """Only the head, with a face radius of about `r` pixels, centred on `center`."""
-    height = round(r * (HEAD[3] - HEAD[1]) / HEAD_R)
+    height = round(r * (FIGURE[3] - FIGURE[1]) / HEAD_R)
     sprite = sprite_for(_key(avatar), max(8, height), False, HEAD)
-    offset_y = ((HEAD[1] + HEAD[3]) / 2 - HEAD_CENTER[1]) * height / (HEAD[3] - HEAD[1])
+    u = r / HEAD_R
+    offset_y = ((HEAD[1] + HEAD[3]) / 2 - HEAD_CENTER[1]) * u
     surface.blit(sprite, sprite.get_rect(center=(center[0], round(center[1] + offset_y))))
 
 
-def _key(avatar: Avatar) -> tuple[str, str, str, str, str]:
-    return (avatar.face, avatar.skin, avatar.hair_style, avatar.hair_color, avatar.shirt)
+def draw_bust(surface: pygame.Surface, avatar: Avatar, center: tuple[int, int], r: float) -> None:
+    """The head and shoulders with the items worn there (for the mirror), the face's centre on
+    `center` with a radius of about `r` pixels."""
+    height = round(r * (FIGURE[3] - FIGURE[1]) / HEAD_R)
+    sprite = sprite_for(_key(avatar), max(8, height), False, BUST)
+    u = r / HEAD_R
+    left = center[0] - (HEAD_CENTER[0] - BUST[0]) * u
+    top = center[1] - (HEAD_CENTER[1] - BUST[1]) * u
+    surface.blit(sprite, (round(left), round(top)))
+
+
+def _key(avatar: Avatar) -> tuple[str, ...]:
+    return tuple(vars(avatar).values())
 
 
 @lru_cache(maxsize=256)
 def sprite_for(
-    key: tuple[str, str, str, str, str],
+    key: tuple[str, ...],
     height: int,
     celebrating: bool,
     frame: tuple[int, int, int, int],
 ) -> pygame.Surface:
-    """The figure (or the part of it inside `frame`) `height` pixels tall."""
+    """The part of the figure inside `frame`, for a figure `height` pixels tall."""
     left, top, right, bottom = frame
-    u = height * K / (bottom - top)
+    u = height * K / (FIGURE[3] - FIGURE[1])
     big = pygame.Surface((round((right - left) * u), round((bottom - top) * u)), pygame.SRCALPHA)
     _Figure(big, u, (-left * u, -top * u), OUTLINE_W).draw(Avatar(*key), celebrating)
     return paint.finish(big)
 
 
-class _Figure(paint.Pen):
+class _Figure(ItemPen):
     """Draws the avatar in figure units onto a supersampled surface."""
 
     def draw(self, avatar: Avatar, celebrating: bool) -> None:
@@ -74,11 +95,14 @@ class _Figure(paint.Pen):
         shadow = pygame.Surface((round(150 * self.u), round(30 * self.u)), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (20, 40, 20, 70), shadow.get_rect())
         self.s.blit(shadow, self.p(-75, -14))
+        draw_item(self, avatar.back)
         if avatar.hair_style == "long":
             self.rrect(hair, (-112, -300, 224, 160), 60)
         for d in (-1, 1):
             self.rrect(PANTS, (d * 22 - 15, -70, 30, 56), 10)
-            self.ellipse(SHOES, (d * 26 - 26, -26, 52, 28))
+            if not avatar.feet:  # its own red shoes, unless it wears shoes from the shop
+                self.ellipse(SHOES, (d * 26 - 26, -26, 52, 28))
+        draw_item(self, avatar.feet)
         arms = [
             ((d * 46, -150), (d * 104, -268) if celebrating else (d * 74, -78)) for d in (-1, 1)
         ]
@@ -88,6 +112,7 @@ class _Figure(paint.Pen):
         if not celebrating:
             self._arms(arms, shirt, skin)
         self._head(avatar, skin, hair, celebrating)
+        draw_item(self, avatar.pet)  # beside the avatar, in front of everything
 
     def _arms(self, arms, shirt, skin) -> None:
         for shoulder, hand in arms:
@@ -118,7 +143,12 @@ class _Figure(paint.Pen):
         self.circle(shade(skin, 0.84), (0, -258), 96)  # the cel shade, seen as a crescent
         pygame.draw.circle(self.s, skin, self.p(-9, -260), 87 * self.u)
         self._hair(style_, hair)
-        self._face(avatar.face, celebrating)
+        if avatar.eyes in UNDER_THE_EYES:
+            draw_item(self, avatar.eyes)
+        self._face(avatar, skin, celebrating)
+        if avatar.eyes not in UNDER_THE_EYES:
+            draw_item(self, avatar.eyes)
+        draw_item(self, avatar.head)
 
     def _hair(self, style_: str, hair) -> None:
         light = paint.mix(hair, style.WHITE, 0.45)
@@ -139,7 +169,13 @@ class _Figure(paint.Pen):
         pygame.draw.arc(self.s, light, self.rect(-70, -360, 70, 50), 1.9, 2.9, round(7 * self.u))
         pygame.draw.arc(self.s, light, self.rect(10, -372, 50, 40), 1.9, 2.9, round(6 * self.u))
 
-    def _face(self, face: str, celebrating: bool) -> None:
+    def _face(self, avatar: Avatar, skin, celebrating: bool) -> None:
+        face = avatar.face
+        if avatar.freckles:
+            freckle = shade(paint.mix(skin, FRECKLE, 0.4), 0.7)  # visible on every skin
+            for d in (-1, 1):
+                for x, y in FRECKLE_SPOTS:
+                    pygame.draw.circle(self.s, freckle, self.p(d * x, y), 4.2 * self.u)
         for d in (-1, 1):
             ex = d * 34
             if celebrating or (face == "wink" and d == 1):
@@ -154,7 +190,8 @@ class _Figure(paint.Pen):
             else:
                 iris = 10 if face == "calm" else 12
                 self.ellipse(style.WHITE, (ex - 17, -268, 34, 42), outline=True)
-                pygame.draw.ellipse(self.s, IRIS, self.rect(ex - iris + d * 2, -258, iris * 2, 30))
+                iris_box = self.rect(ex - iris + d * 2, -258, iris * 2, 30)
+                pygame.draw.ellipse(self.s, EYE_COLORS[avatar.eye_color], iris_box)
                 pygame.draw.ellipse(self.s, NAVY, self.rect(ex - 7 + d * 2, -250, 14, 18))
                 pygame.draw.circle(self.s, style.WHITE, self.p(ex - 3 + d * 2, -252), 6 * self.u)
                 pygame.draw.circle(self.s, style.WHITE, self.p(ex + 5 + d * 2, -238), 3 * self.u)

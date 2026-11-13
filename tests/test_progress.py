@@ -61,8 +61,8 @@ def test_S1_AC12_every_win_gives_coins_replays_included() -> None:
     first = progress.record_win(profile, "memory", "1", 3)
     replay = progress.record_win(profile, "memory", "1", 1)
 
-    assert (first.coins, replay.coins) == (5, 3)
-    assert profile.coins == 8
+    assert (first.coins, replay.coins) == (5, 2)  # a replay gives 2 coins since S4
+    assert profile.coins == 7
 
 
 def test_S1_AC15_free_shirts_are_owned_from_the_start() -> None:
@@ -143,3 +143,16 @@ def test_S3_AC15_picture_answers_are_counted_per_picture() -> None:
     assert profile.answers["pictures"]["cat"].right == 1
     assert profile.answers["pictures"]["cat"].wrong == {"K": 1}
     assert profile.answers["letters"]["C"].wrong == {"K": 1}  # counted for the letter too
+
+
+def test_S4_AC13_a_replay_gives_2_coins_whatever_its_stars() -> None:
+    profile = new_profile("Sam", 5)
+
+    first = progress.record_win(profile, "memory", "1", 1)
+    better = progress.record_win(profile, "memory", "1", 3)
+    again = progress.record_win(profile, "memory", "1", 3)
+    other_game = progress.record_win(profile, "rain", "1", 3)  # its own first win
+
+    assert [win.coins for win in (first, better, again, other_game)] == [3, 2, 2, 5]
+    assert better.new_best and progress.best_stars(profile, "memory", "1") == 3
+    assert profile.coins == 12

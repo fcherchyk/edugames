@@ -5,19 +5,20 @@ import pygame
 from edugames.core.content import Game
 from edugames.ui import style
 from edugames.ui.avatar_draw import draw_avatar
+from edugames.ui.items_draw import draw_item_icon
 from edugames.ui.scenes.base import MARGIN, Scene
 from edugames.ui.widgets import Button, draw_padlock, draw_text, name_tag
 
 TILE_W, TILE_H = 360, 250
+# Room above for a tall hat (under the name tag), below for rocket boots (over the Shop button).
+AVATAR_CENTER, AVATAR_HEIGHT = (210, 474), 330
 
 
 class HomeScene(Scene):
     def layout(self) -> None:
         self.buttons = [self.back_button(self.content.text("players"), self.to_players)]
-        wardrobe = pygame.Rect(MARGIN + 40, style.HEIGHT - 150, 280, style.MIN_TARGET)
-        self.buttons.append(
-            Button(wardrobe, self.to_wardrobe, label=self.content.text("wardrobe"), name="wardrobe")
-        )
+        shop = pygame.Rect(MARGIN + 40, style.HEIGHT - 140, 280, style.MIN_TARGET)
+        self.buttons.append(Button(shop, self.to_shop, name="shop", draw=self._draw_shop))
         for index, game in enumerate(self.content.games_for_age(self.profile.age)):
             row, col = divmod(index, 2)
             rect = pygame.Rect(440 + col * (TILE_W + 40), 170 + row * (TILE_H + 40), TILE_W, TILE_H)
@@ -48,6 +49,12 @@ class HomeScene(Scene):
                 title=True,
             )
 
+    def _draw_shop(self, surface: pygame.Surface, rect: pygame.Rect) -> None:
+        """A crown and "Shop": the picture says where it goes before the word does."""
+        draw_item_icon(surface, "crown", (rect.x + 72, rect.centery - 2), 64)
+        label = self.content.text("shop")
+        draw_text(surface, label, 40, (rect.centerx + 36, rect.centery - 2), title=True)
+
     def open_game(self, game: Game) -> None:
         from edugames.ui.scenes.path import PathScene
 
@@ -59,12 +66,12 @@ class HomeScene(Scene):
         self.app.profile = None
         self.app.go(ProfileSelectScene(self.app))
 
-    def to_wardrobe(self) -> None:
-        from edugames.ui.scenes.wardrobe import WardrobeScene
+    def to_shop(self) -> None:
+        from edugames.ui.scenes.shop import ShopScene
 
-        self.app.go(WardrobeScene(self.app))
+        self.app.go(ShopScene(self.app))
 
     def draw_scene(self, surface: pygame.Surface) -> None:
-        draw_avatar(surface, self.profile.avatar, (210, 470), 380)
-        name_tag(surface, self.profile.name, (210, 235))
+        draw_avatar(surface, self.profile.avatar, AVATAR_CENTER, AVATAR_HEIGHT)
+        name_tag(surface, self.profile.name, (210, 186))
         self.draw_coin_count(surface)
